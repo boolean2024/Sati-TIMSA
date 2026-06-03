@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Syntax check
+        run: |
+          npm run check
+          node --check private/frontend/app.js
+          node --check frontend/assets/js/app.min.js
+          find backend/src -name "*.js" -print0 | xargs -0 -n1 node --check
+
+      - name: Security audit
+        run: npm audit --audit-level=high

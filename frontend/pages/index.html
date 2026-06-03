@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SATI-TIMSA</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/img/sati-favicon.svg">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="login-view" id="loginView">
+        <div class="brand-panel">
+          <div class="login-logo">
+            <img src="../assets/img/hutchison_ports_timsa_logo.jpg" alt="Hutchison Ports TIMSA">
+          </div>
+          <h1>Endpoint Center</h1>
+          <p>Sistema de inventario SATI-TIMSA</p>
+        </div>
+
+        <form class="login-card" id="loginForm">
+          <h2>Iniciar sesion</h2>
+          <p>Ingrese sus credenciales para acceder al sistema</p>
+          <label>
+            Usuario
+            <span class="input-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <input type="text" name="username" autocomplete="username" required maxlength="40" placeholder="Usuario">
+            </span>
+          </label>
+          <label>
+            Contrasena
+            <span class="input-icon input-icon--action">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+              <input type="password" name="password" autocomplete="current-password" required maxlength="128" placeholder="Contrasena">
+              <button class="password-toggle" id="passwordToggle" type="button" aria-label="Mostrar contrasena">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </span>
+          </label>
+          <div class="login-options">
+            <label class="check-line"><input type="checkbox" name="remember_username"> Recordarme</label>
+            <a href="#forgot" id="forgotPasswordLink">Olvido su contrasena?</a>
+          </div>
+          <button type="button" id="loginButton">Entrar</button>
+          <p class="form-message" id="loginMessage"></p>
+          <small class="login-footer">&copy; 2026 Hutchison Ports TIMSA. Todos los derechos reservados.</small>
+        </form>
+        <form class="login-card reset-card hidden" id="resetForm">
+          <button class="ghost reset-back" id="closeResetPanelButton" type="button"><span class="button-icon">&lt;</span>Regresar</button>
+          <h2>Recuperar contrasena</h2>
+          <p>Solicite un codigo de 4 digitos y capture una nueva contrasena para entrar nuevamente.</p>
+          <section class="reset-panel" id="resetPanel">
+            <p>Si el usuario ya tiene correo registrado, el codigo llegara ahi. Si no, escriba un correo para recibirlo.</p>
+            <label>
+              Usuario
+              <input name="username" type="text" autocomplete="username" required maxlength="40" placeholder="Usuario">
+            </label>
+            <label>
+              Correo de recuperacion
+              <input name="reset_email" type="email" autocomplete="email" maxlength="160" placeholder="usuario@empresa.com">
+            </label>
+            <button class="ghost" type="button" id="requestResetButton">Enviar codigo</button>
+            <label>
+              Codigo
+              <input name="reset_code" inputmode="numeric" autocomplete="one-time-code" maxlength="4" pattern="[0-9]{4}" placeholder="0000">
+            </label>
+            <label>
+              Nueva contrasena
+              <input name="reset_password" type="password" autocomplete="new-password" maxlength="128" placeholder="Nueva contrasena">
+            </label>
+            <button type="button" id="confirmResetButton">Cambiar contrasena</button>
+          </section>
+          <p class="form-message" id="resetMessage"></p>
+          <small class="login-footer">&copy; 2026 Hutchison Ports TIMSA.</small>
+        </form>
+      </section>
+
+      <section class="dashboard hidden" id="dashboardView">
+        <aside class="sidebar">
+          <div class="brand-line">
+            <button class="menu-button" id="menuButton" type="button" aria-label="Contraer menu" aria-expanded="true">Menu</button>
+            <div class="sidebar-logo">
+              <span>HUTCHISON PORTS</span>
+              <strong>TIMSA</strong>
+            </div>
+          </div>
+          <nav>
+            <a class="active" href="#console" data-view="console"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect></svg></span> Consola de inventario</a>
+            <a href="#inventory" data-view="inventory"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg></span> Inventario</a>
+            <a href="#hardware" data-view="hardware"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg></span> Inventario de activos</a>
+            <a href="#accessories" data-view="accessories"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="7" height="10" rx="2"></rect><rect x="13" y="5" width="7" height="10" rx="2"></rect><path d="M8 15v2a4 4 0 0 0 8 0v-2"></path><path d="M12 19v2"></path></svg></span> Inventario de accesorios</a>
+            <a href="#maintenance" data-view="maintenance"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14.5 6.5l3-3 3 3-3 3"></path><path d="M3 21l8.5-8.5"></path><path d="M12 5a7 7 0 0 0 7 7"></path></svg></span> Equipos en mantenimiento</a>
+            <a href="#stock" data-view="stock"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 7l8-4 8 4-8 4z"></path><path d="M4 7v10l8 4 8-4V7"></path><path d="M12 11v10"></path></svg></span> Stock de almacenamiento</a>
+            <a href="#audit" data-view="audit"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"></path><path d="M9 12l2 2 4-5"></path></svg></span> Auditoria</a>
+            <a href="#recent" data-view="recent"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 5h10"></path><path d="M4 12h16"></path><path d="M4 19h12"></path><path d="M18 5v6"></path><path d="M15 8l3 3 3-3"></path></svg></span> Cambios recientes</a>
+            <a href="#users" data-view="users" data-admin-only><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span> Usuarios</a>
+            <a href="#cloud" data-view="cloud"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.5 2A3.5 3.5 0 0 0 7 18z"></path></svg></span> Servicios cloud</a>
+          </nav>
+          <button class="sidebar-settings-button" id="sidebarCollapseButton" type="button" aria-label="Ajustes">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5z"></path><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.2 2.2 0 0 1-3.11 3.11l-.04-.04a1.8 1.8 0 0 0-1.98-.36 1.8 1.8 0 0 0-1.09 1.65V21a2.2 2.2 0 0 1-4.4 0v-.06A1.8 1.8 0 0 0 8 19.29a1.8 1.8 0 0 0-1.98.36l-.04.04a2.2 2.2 0 0 1-3.11-3.11l.04-.04A1.8 1.8 0 0 0 3.27 15a1.8 1.8 0 0 0-1.65-1.09H1.5a2.2 2.2 0 0 1 0-4.4h.12A1.8 1.8 0 0 0 3.27 8a1.8 1.8 0 0 0-.36-1.98l-.04-.04a2.2 2.2 0 0 1 3.11-3.11l.04.04A1.8 1.8 0 0 0 8 3.27a1.8 1.8 0 0 0 1.09-1.65V1.5a2.2 2.2 0 0 1 4.4 0v.12A1.8 1.8 0 0 0 15 3.27a1.8 1.8 0 0 0 1.98-.36l.04-.04a2.2 2.2 0 0 1 3.11 3.11l-.04.04A1.8 1.8 0 0 0 19.73 8a1.8 1.8 0 0 0 1.65 1.09h.12a2.2 2.2 0 0 1 0 4.4h-.12A1.8 1.8 0 0 0 19.4 15z"></path></svg>
+          </button>
+        </aside>
+
+        <section class="workspace">
+          <div class="app-topbar">
+            <div></div>
+            <div class="topbar-actions">
+              <button class="top-icon notification-trigger" id="notificationButton" type="button" aria-label="Notificaciones" aria-expanded="false">
+                <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+                <span class="notification-dot hidden" id="notificationCount">0</span>
+              </button>
+              <button class="top-icon" id="changePasswordButton" type="button" aria-label="Cambiar contrasena"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9a2.7 2.7 0 0 1 5 1.4c0 2-2.5 2-2.5 4"></path><path d="M12 18h.01"></path></svg></button>
+              <div class="avatar">AD</div>
+              <div class="user-pill" id="userPill"></div>
+              <button class="top-icon" id="logoutButton" type="button" aria-label="Cerrar sesion"><svg viewBox="0 0 24 24"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path><path d="M10 8l-4 4 4 4"></path><path d="M6 12h11"></path><path d="M14 4v16"></path></svg></button>
+            </div>
+          </div>
+          <aside class="notification-panel hidden" id="notificationPanel" aria-label="Notas y recordatorios">
+            <header>
+              <div>
+                <span class="eyebrow">Notificaciones</span>
+                <h3>Notas y recordatorios</h3>
+              </div>
+              <button class="icon-button" id="closeNotificationsButton" type="button" aria-label="Cerrar">x</button>
+            </header>
+            <form class="note-form" id="noteForm">
+              <label>
+                Recordatorio
+                <textarea name="text" rows="3" maxlength="260" required placeholder="Escribe una nota para seguimiento..."></textarea>
+              </label>
+              <label>
+                Fecha y hora
+                <input name="due_at" type="datetime-local" required>
+              </label>
+              <button type="submit">Guardar nota</button>
+            </form>
+            <div class="notification-list" id="notificationList"></div>
+          </aside>
+          <header class="page-header">
+            <button class="ghost page-back hidden" id="backButton" type="button">
+              <span class="button-icon">&lt;</span>Regresar
+            </button>
+            <div class="page-heading">
+              <h2 id="viewTitle">Consola de inventario</h2>
+              <p id="viewSubtitle">Resumen general del inventario de activos</p>
+            </div>
+            <div class="page-actions">
+              <button id="newEquipmentButton"><span class="button-icon">+</span>Nuevo equipo</button>
+              <button class="ghost hidden" id="newUserButton" type="button"><span class="button-icon">+</span>Agregar usuario</button>
+            </div>
+          </header>
+
+          <section class="metrics" id="metricsView">
+            <article>
+              <div class="metric-icon total"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="2"></rect><path d="M8 20h8"></path><path d="M12 16v4"></path></svg></div>
+              <div>
+                <span>Total</span>
+                <strong id="metricTotal">0</strong>
+                <small>Equipos registrados</small>
+              </div>
+            </article>
+            <article>
+              <div class="metric-icon active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M8 12l3 3 5-6"></path></svg></div>
+              <div>
+                <span>Activos</span>
+                <strong id="metricActive">0</strong>
+                <small>En operacion</small>
+                <em id="metricActivePct">0%</em>
+              </div>
+            </article>
+            <article>
+              <div class="metric-icon maintenance"><svg viewBox="0 0 24 24"><path d="M14.5 6.5l3-3 3 3-3 3"></path><path d="M3 21l8.5-8.5"></path><path d="M12 5a7 7 0 0 0 7 7"></path></svg></div>
+              <div>
+                <span>Mantenimiento</span>
+                <strong id="metricMaintenance">0</strong>
+                <small>Requieren atencion</small>
+                <em id="metricMaintenancePct">0%</em>
+              </div>
+            </article>
+            <article>
+              <div class="metric-icon inactive"><svg viewBox="0 0 24 24"><path d="M4 7l8-4 8 4v10l-8 4-8-4z"></path><path d="M4 7l8 4 8-4"></path><path d="M12 11v10"></path></svg></div>
+              <div>
+                <span>Inactivos</span>
+                <strong id="metricInactive">0</strong>
+                <small>Resguardo o baja</small>
+                <em id="metricInactivePct">0%</em>
+              </div>
+            </article>
+          </section>
+
+          <section class="dashboard-kpis" id="dashboardKpis">
+            <article>
+              <span>Total Equipos</span>
+              <strong id="kpiTotalEquipos">0</strong>
+              <small>Activos registrados</small>
+            </article>
+            <article>
+              <span>En Mantenimiento</span>
+              <strong id="kpiMantenimiento">0</strong>
+              <small>Fases revisado o en proceso</small>
+            </article>
+            <article class="kpi-alert">
+              <span>Alertas de Stock</span>
+              <strong id="kpiAlertasStock">0</strong>
+              <small>Items con cantidad menor a 5</small>
+            </article>
+          </section>
+
+          <section class="dashboard-charts" id="dashboardCharts">
+            <article>
+              <header>
+                <span class="eyebrow">Tipos</span>
+                <strong>Distribucion por tipo de equipo</strong>
+              </header>
+              <canvas id="chartTipos" aria-label="Distribucion por tipo de equipo"></canvas>
+            </article>
+            <article>
+              <header>
+                <span class="eyebrow">Areas</span>
+                <strong>Equipos por area</strong>
+              </header>
+              <canvas id="chartAreas" aria-label="Equipos por area"></canvas>
+            </article>
+            <article>
+              <header>
+                <span class="eyebrow">Mantenimiento</span>
+                <strong>Estado de mantenimiento</strong>
+              </header>
+              <canvas id="chartMantenimiento" aria-label="Estado de mantenimiento"></canvas>
+            </article>
+          </section>
+
+          <section class="dashboard-insights" id="dashboardInsights">
+            <article class="status-visual-card">
+              <header>
+                <span class="eyebrow">Estado</span>
+                <strong>Salud del inventario</strong>
+              </header>
+              <div class="status-visual">
+                <div class="status-donut" id="statusDonut"><strong id="statusDonutTotal">0</strong><span>activos</span></div>
+                <div class="status-legend" id="statusLegend"></div>
+              </div>
+            </article>
+            <article>
+              <header>
+                <span class="eyebrow">Tipos</span>
+                <strong>Activos principales</strong>
+              </header>
+              <div class="insight-bars compact" id="typeInsights"></div>
+            </article>
+            <article>
+              <header>
+                <span class="eyebrow">Garantias</span>
+                <strong>Vencimientos</strong>
+              </header>
+              <div class="insight-list" id="warrantyInsights"></div>
+            </article>
+            <article>
+              <header>
+                <span class="eyebrow">Distribucion</span>
+                <strong>Por ubicacion</strong>
+              </header>
+              <div class="insight-bars" id="locationInsights"></div>
+            </article>
+            <article>
+              <header>
+                <span class="eyebrow">Mantenimiento</span>
+                <strong>Ordenes por fase</strong>
+              </header>
+              <div class="insight-bars compact" id="maintenanceInsights"></div>
+            </article>
+            <article>
+              <header>
+                <span class="eyebrow">Stock</span>
+                <strong>Almacenamiento</strong>
+              </header>
+              <div class="insight-list" id="stockInsights"></div>
+            </article>
+          </section>
+
+          <section class="content-grid view-panel" id="inventoryView">
+            <div class="table-wrap">
+              <div class="toolbar">
+                <label class="search-box" aria-label="Buscar inventario">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+                  <input id="searchInput" type="search" placeholder="Buscar por ID, serie, usuario, ubicacion o modelo">
+                </label>
+                <div class="toolbar-actions">
+                  <label class="filter-control">
+                    <span>Categoria</span>
+                    <select id="typeFilter">
+                      <option value="">Todas</option>
+                    </select>
+                  </label>
+                  <label class="filter-control">
+                    <span>Marca</span>
+                    <select id="brandFilter">
+                      <option value="">Todas</option>
+                    </select>
+                  </label>
+                  <label class="filter-control">
+                    <span>Modelo</span>
+                    <select id="modelFilter">
+                      <option value="">Todos</option>
+                    </select>
+                  </label>
+                  <label class="filter-control">
+                    <span>Estado</span>
+                    <select id="statusFilter">
+                      <option value="">Todos</option>
+                      <option value="activo">Activo</option>
+                      <option value="mantenimiento">Mantenimiento</option>
+                      <option value="resguardo">Resguardo</option>
+                      <option value="baja">Baja</option>
+                    </select>
+                  </label>
+                  <button class="ghost icon-label" id="exportPdfButton" type="button"><svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="M8 11l4 4 4-4"></path><path d="M5 19h14"></path></svg>Exportar PDF</button>
+                  <button class="ghost icon-label" id="exportExcelButton" type="button"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg>Exportar Excel</button>
+                  <button class="ghost icon-label" id="downloadTemplateButton" type="button"><svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="M8 11l4 4 4-4"></path><path d="M4 19h16"></path><path d="M6 5h12"></path></svg>Plantilla Excel</button>
+                  <input class="hidden" id="csvImportInput" type="file" accept=".csv,text/csv">
+                  <button class="ghost icon-label" id="importCsvButton" type="button"><svg viewBox="0 0 24 24"><path d="M12 21V9"></path><path d="M8 13l4-4 4 4"></path><path d="M5 5h14"></path></svg>Importar CSV</button>
+                </div>
+              </div>
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Tipo</th>
+                      <th>Marca</th>
+                      <th>Modelo</th>
+                      <th>Numero de serie</th>
+                      <th>ID de inventario</th>
+                      <th>Ubicacion</th>
+                      <th>Area</th>
+                      <th>Usuario</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventoryBody"></tbody>
+                </table>
+              </div>
+              <div class="empty-state hidden" id="emptyState">Sin registros para mostrar.</div>
+              <div class="table-footer">
+                <span id="resultCount">Mostrando 0 resultados</span>
+                <div class="pagination" id="inventoryPagination">
+                  <button class="ghost" id="prevPageButton" type="button">&lt;</button>
+                  <span id="pageIndicator">Pagina 1 de 1</span>
+                  <button class="ghost" id="nextPageButton" type="button">&gt;</button>
+                </div>
+                <select id="pageSizeSelect" aria-label="Resultados por pagina">
+                  <option value="10">10 por pagina</option>
+                  <option value="25" selected>25 por pagina</option>
+                  <option value="50">50 por pagina</option>
+                  <option value="100">100 por pagina</option>
+                </select>
+              </div>
+            </div>
+            <aside class="equipment-preview hidden" id="equipmentPreview" aria-live="polite"></aside>
+          </section>
+
+          <section class="module-panel view-panel hidden" id="hardwareView">
+            <div class="section-toolbar">
+              <button class="ghost section-back" type="button" data-back-inventory>Regresar</button>
+            </div>
+            <div class="module-grid" id="hardwareTypeGrid"></div>
+          </section>
+
+          <section class="module-panel view-panel hidden" id="equipmentView">
+            <div class="section-toolbar">
+              <button class="ghost section-back" type="button" data-back-inventory>Regresar</button>
+            </div>
+            <div class="module-list" id="equipmentTypeList"></div>
+          </section>
+
+          <section class="module-panel view-panel hidden" id="maintenanceView">
+            <div class="section-toolbar">
+              <button class="ghost section-back" type="button" data-back-inventory>Regresar</button>
+              <button id="newMaintenanceButton" type="button"><span class="button-icon">+</span>Agregar mantenimiento</button>
+            </div>
+            <div class="maintenance-summary" id="maintenanceSummary"></div>
+            <div class="maintenance-list" id="maintenanceList"></div>
+          </section>
+
+          <section class="module-panel view-panel hidden" id="stockView">
+            <div class="section-toolbar section-toolbar--split">
+              <button class="ghost section-back" type="button" data-back-inventory>Regresar</button>
+              <button id="newStockButton" type="button"><span class="button-icon">+</span>Agregar stock</button>
+            </div>
+            <div class="stock-filters">
+              <label>Buscar<input id="stockSearchInput" type="search" placeholder="Nombre, modelo o serie"></label>
+              <label>Ubicacion<select id="stockLocationFilter"></select></label>
+              <label>Area<select id="stockAreaFilter"></select></label>
+              <button class="ghost" id="applyStockFiltersButton" type="button">Consultar</button>
+            </div>
+            <div class="stock-summary" id="stockSummary"></div>
+            <div class="stock-availability" id="stockAvailability"></div>
+            <div class="stock-list" id="stockList"></div>
+          </section>
+
+          <section class="module-panel view-panel hidden" id="auditView">
+            <div class="section-toolbar">
+              <button class="ghost section-back" type="button" data-back-inventory>Regresar</button>
+            </div>
+            <div class="audit-filters">
+              <label>Usuario<input id="auditUsernameFilter" placeholder="admin"></label>
+              <label>Accion<input id="auditActionFilter" placeholder="CREATE"></label>
+              <label>Entidad<input id="auditEntityFilter" placeholder="equipment"></label>
+              <label>Desde<input id="auditFromFilter" type="date"></label>
+              <label>Hasta<input id="auditToFilter" type="date"></label>
+              <button class="ghost" id="applyAuditFiltersButton" type="button">Filtrar</button>
+              <button id="exportAuditButton" type="button">Exportar CSV</button>
+            </div>
+            <table class="simple-table">
+              <thead>
+                <tr>
+                  <th>Evento</th>
+                  <th>Detalle</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="auditBody"></tbody>
+            </table>
+            <div class="table-footer">
+              <span id="auditResultCount">Mostrando 0 eventos</span>
+            </div>
+          </section>
+
+          <section class="module-panel view-panel hidden" id="recentView">
+            <div class="section-toolbar section-toolbar--split">
+              <button class="ghost section-back" type="button" data-back-inventory>Regresar</button>
+              <button id="exportRecentButton" type="button">Exportar CSV</button>
+            </div>
+            <div class="module-copy compact-copy">
+              <h3>Cambios recientes</h3>
+              <p>Bitacora operativa con busqueda, filtros y paginacion para revisar toda la actividad del sistema.</p>
+            </div>
+            <div class="audit-filters">
+              <label>Busqueda<input id="recentSearchFilter" placeholder="Serie, usuario, entidad o detalle"></label>
+              <label>Usuario<input id="recentUsernameFilter" placeholder="admin"></label>
+              <label>Accion<input id="recentActionFilter" placeholder="CREATE"></label>
+              <label>Entidad<input id="recentEntityFilter" placeholder="equipment"></label>
+              <label>Desde<input id="recentFromFilter" type="date"></label>
+              <label>Hasta<input id="recentToFilter" type="date"></label>
+              <button class="ghost" id="applyRecentFiltersButton" type="button">Filtrar</button>
+            </div>
+            <div class="recent-list" id="recentChangesList"></div>
+            <div class="table-footer">
+              <span id="recentResultCount">Mostrando 0 cambios</span>
+              <div class="pagination">
+                <button class="ghost" id="prevRecentPageButton" type="button">&lt;</button>
+                <span id="recentPageIndicator">Pagina 1 de 1</span>
+                <button class="ghost" id="nextRecentPageButton" type="button">&gt;</button>
+              </div>
+              <select id="recentPageSizeSelect" aria-label="Cambios por pagina">
+                <option value="10">10 por pagina</option>
+                <option value="25" selected>25 por pagina</option>
+                <option value="50">50 por pagina</option>
+                <option value="100">100 por pagina</option>
+              </select>
+            </div>
+          </section>
+
+          <section class="module-panel view-panel hidden" id="usersView">
+            <div class="section-toolbar">
+              <button class="ghost section-back" type="button" data-back-inventory>Regresar</button>
+              <button id="addUserFromPanelButton" type="button"><span class="button-icon">+</span>Agregar usuario</button>
+            </div>
+            <div class="module-copy">
+              <h3>Administracion de usuarios</h3>
+              <p>Solo el rol ADMIN puede crear usuarios, cambiar roles, activar o bloquear cuentas y reiniciar contrasenas.</p>
+            </div>
+            <section class="user-admin-list" id="userAdminList"></section>
+          </section>
+
+          <section class="module-panel view-panel hidden" id="cloudView">
+            <div class="section-toolbar">
+              <button class="ghost section-back" type="button" data-back-inventory>Regresar</button>
+            </div>
+            <div class="module-grid">
+              <article>
+                <span class="product-icon product-icon--md product-icon--database" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" focusable="false">
+                    <ellipse cx="16" cy="7" rx="9" ry="3"></ellipse>
+                    <path d="M7 7v14c0 1.7 4 3 9 3s9-1.3 9-3V7"></path>
+                    <path d="M7 14c0 1.7 4 3 9 3s9-1.3 9-3"></path>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Supabase PostgreSQL</strong>
+                  <p>Base de datos cloud para inventario, usuarios, roles, auditoria y disponibilidad.</p>
+                </div>
+              </article>
+              <article>
+                <span class="product-icon product-icon--md product-icon--api" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" focusable="false">
+                    <path d="M9 10l-5 6 5 6"></path>
+                    <path d="M23 10l5 6-5 6"></path>
+                    <path d="M19 7l-6 18"></path>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Express API</strong>
+                  <p>Servicios de autenticacion, catalogos, inventario y usuarios.</p>
+                </div>
+              </article>
+              <article>
+                <span class="product-icon product-icon--md product-icon--web" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" focusable="false">
+                    <circle cx="16" cy="16" r="11"></circle>
+                    <path d="M5 16h22"></path>
+                    <path d="M16 5c3 3 4 7 4 11s-1 8-4 11"></path>
+                    <path d="M16 5c-3 3-4 7-4 11s1 8 4 11"></path>
+                  </svg>
+                </span>
+                <div>
+                  <strong>Frontend SATI</strong>
+                  <p>Interfaz operativa preparada para despliegue web de produccion.</p>
+                </div>
+              </article>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <dialog class="modal" id="equipmentDialog">
+      <form method="dialog" class="equipment-form" id="equipmentForm">
+        <header>
+          <div>
+            <span class="eyebrow">CRUD TI</span>
+            <h3 id="dialogTitle">Nuevo equipo</h3>
+          </div>
+          <button class="icon-button" value="cancel" type="submit" formnovalidate aria-label="Cerrar">x</button>
+        </header>
+
+        <input type="hidden" name="id">
+        <div class="form-grid">
+          <label>Tipo
+            <span class="field-with-action">
+              <select name="equipment_type_id" required></select>
+              <button class="mini-action" type="button" data-add-catalog="type">Agregar</button>
+            </span>
+          </label>
+          <label>Marca
+            <span class="field-with-action">
+              <select name="brand_id" required></select>
+              <button class="mini-action" type="button" data-add-catalog="brand">Agregar</button>
+            </span>
+          </label>
+          <label>Modelo
+            <span class="field-with-action">
+              <select name="model_id" required></select>
+              <button class="mini-action" type="button" data-add-catalog="model">Agregar</button>
+            </span>
+          </label>
+          <label>Ubicacion
+            <select name="location_id" required></select>
+          </label>
+          <label>Area<select name="area_id" required></select></label>
+          <label>Numero de serie
+            <span class="field-with-action">
+              <input name="serial_number" required minlength="2">
+              <button class="mini-action" type="button" data-add-catalog="serial">Agregar</button>
+            </span>
+          </label>
+          <label class="asset-only-field">ID de inventario<input name="asset_tag" placeholder="Ej. 400001"></label>
+          <label>Nombre de usuario
+            <span class="field-with-action">
+              <input name="assigned_user" list="assignedUsersList">
+              <button class="mini-action" type="button" data-add-catalog="assigned_user">Agregar</button>
+            </span>
+            <datalist id="assignedUsersList"></datalist>
+          </label>
+          <label class="accessory-only-field hidden">Cantidad<input name="quantity" type="number" min="0" step="1" required value="1"></label>
+          <label class="asset-only-field">Estado
+            <select name="status" required>
+              <option value="activo">Activo</option>
+              <option value="mantenimiento">Mantenimiento</option>
+              <option value="resguardo">Resguardo</option>
+              <option value="baja">Baja</option>
+            </select>
+          </label>
+          <label>Proveedor
+            <span class="field-with-action">
+              <input name="supplier" list="supplierList" maxlength="140" placeholder="Proveedor o responsable externo">
+              <button class="mini-action" type="button" data-add-catalog="supplier">Agregar</button>
+            </span>
+            <datalist id="supplierList"></datalist>
+          </label>
+          <label class="asset-only-field">Fecha de compra<input name="purchase_date" type="date" min="1990-01-01" max="2100-12-31"></label>
+          <label class="asset-only-field">Garantia hasta<input name="warranty_until" type="date" min="1990-01-01" max="2100-12-31"></label>
+          <label class="wide">Imagen del equipo
+            <input name="image" type="file" accept="image/jpeg,image/png,image/webp">
+            <span class="image-preview hidden" id="equipmentImagePreview"></span>
+          </label>
+          <label class="wide">Notas<textarea name="notes" rows="3"></textarea></label>
+        </div>
+
+        <footer>
+          <button class="danger" type="button" id="deleteButton">Eliminar</button>
+          <div>
+            <button class="ghost" value="cancel" type="submit" formnovalidate>Cancelar</button>
+            <button type="button" id="saveEquipmentButton">Guardar</button>
+          </div>
+        </footer>
+        <p class="form-message" id="equipmentMessage"></p>
+        <section class="equipment-profile hidden" id="equipmentProfilePanel">
+          <article>
+            <span class="eyebrow">Ficha tecnica</span>
+            <div class="profile-grid" id="equipmentProfileBody"></div>
+          </article>
+          <article>
+            <span class="eyebrow">QR del activo</span>
+            <div class="qr-box" id="equipmentQrBox"></div>
+          </article>
+          <article>
+            <span class="eyebrow">Historial</span>
+            <div class="profile-list" id="equipmentHistoryList"></div>
+          </article>
+          <article>
+            <span class="eyebrow">Mantenimiento</span>
+            <div class="profile-list" id="equipmentMaintenanceList"></div>
+          </article>
+        </section>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="stockDialog">
+      <form method="dialog" class="equipment-form" id="stockForm">
+        <header>
+          <div>
+            <span class="eyebrow">Almacen</span>
+            <h3 id="stockDialogTitle">Agregar dispositivo en stock</h3>
+          </div>
+          <button class="icon-button" value="cancel" type="submit" formnovalidate aria-label="Cerrar">x</button>
+        </header>
+        <input type="hidden" name="id">
+        <div class="form-grid">
+          <label>ID de stock<input name="item_code" maxlength="80" placeholder="Ej. STOCK-PILA-001"></label>
+          <label>Nombre<input name="name" required maxlength="140" placeholder="Laptop, monitor, radio..."></label>
+          <label>Modelo<input name="model" required maxlength="140" placeholder="Latitude 5440"></label>
+          <label>Serie<input name="serial_number" maxlength="140" placeholder="Opcional si se captura por lote"></label>
+          <label>Cantidad<input name="quantity" type="number" min="0" step="1" required value="1"></label>
+          <label>Ubicacion
+            <select name="location_id" required></select>
+          </label>
+          <label>Area
+            <span class="field-with-action">
+              <select name="area_id" required></select>
+              <button class="mini-action" type="button" data-add-catalog="area">Agregar</button>
+            </span>
+          </label>
+          <label class="wide">Foto del equipo
+            <input name="image" type="file" accept="image/jpeg,image/png,image/webp">
+            <span class="image-preview hidden" id="stockImagePreview"></span>
+          </label>
+          <label class="wide">Notas<textarea name="notes" rows="3" maxlength="2000"></textarea></label>
+        </div>
+        <footer>
+          <div></div>
+          <div>
+            <button class="ghost" value="cancel" type="submit" formnovalidate>Cancelar</button>
+            <button type="button" id="saveStockButton">Guardar stock</button>
+          </div>
+        </footer>
+        <p class="form-message" id="stockMessage"></p>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="maintenanceDialog">
+      <form method="dialog" class="equipment-form" id="maintenanceForm">
+        <header>
+          <div>
+            <span class="eyebrow">Mantenimiento</span>
+            <h3 id="maintenanceDialogTitle">Agregar mantenimiento</h3>
+          </div>
+          <button class="icon-button" value="cancel" type="submit" formnovalidate aria-label="Cerrar">x</button>
+        </header>
+
+        <input type="hidden" name="id">
+        <div class="form-grid">
+          <label class="wide">Equipo
+            <select name="equipment_id" required></select>
+          </label>
+          <label>Estado
+            <select name="phase" required>
+              <option value="revisado">Revisado</option>
+              <option value="en_proceso">En proceso</option>
+              <option value="terminado">Terminado</option>
+            </select>
+          </label>
+          <label class="wide">Notas
+            <textarea name="notes" rows="4" maxlength="2000" placeholder="Diagnostico, refacciones, seguimiento o resultado..."></textarea>
+          </label>
+        </div>
+
+        <footer>
+          <span></span>
+          <div>
+            <button class="ghost" value="cancel" type="submit" formnovalidate>Cancelar</button>
+            <button type="button" id="saveMaintenanceButton">Guardar</button>
+          </div>
+        </footer>
+        <p class="form-message" id="maintenanceMessage"></p>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="userDialog">
+      <form method="dialog" class="equipment-form" id="userForm">
+        <header>
+          <div>
+            <span class="eyebrow">Usuarios</span>
+            <h3 id="userDialogTitle">Agregar usuario</h3>
+          </div>
+          <button class="icon-button" value="cancel" type="submit" formnovalidate aria-label="Cerrar">x</button>
+        </header>
+
+        <input type="hidden" name="id">
+        <div class="form-grid">
+          <label>Nombre<input name="name" required minlength="2"></label>
+          <label>Usuario<input name="username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9._-]+" placeholder="usuario"></label>
+          <label>Correo Gmail<input name="email" type="email" required maxlength="160" placeholder="usuario@gmail.com"></label>
+          <label>Rol
+            <select name="role" required>
+              <option value="ADMIN">Admin - todo acceso</option>
+              <option value="TI">TI - CRUD de inventario</option>
+              <option value="PERSONAL">Personal - lectura y busqueda</option>
+            </select>
+          </label>
+          <label class="wide" id="userPasswordField">Contrasena inicial<input name="password" type="password" required maxlength="12" placeholder="Maximo 12 caracteres"></label>
+        </div>
+
+        <footer>
+          <button class="danger hidden" type="button" id="deleteUserButton">Eliminar</button>
+          <div>
+            <button class="ghost" value="cancel" type="submit" formnovalidate>Cancelar</button>
+            <button type="button" id="saveUserButton">Guardar usuario</button>
+          </div>
+        </footer>
+        <p class="form-message" id="userMessage"></p>
+      </form>
+    </dialog>
+
+    <dialog class="modal catalog-modal" id="passwordDialog">
+      <form method="dialog" class="equipment-form" id="passwordForm">
+        <header>
+          <div>
+            <span class="eyebrow">Seguridad</span>
+            <h3>Cambiar contrasena</h3>
+          </div>
+          <button class="icon-button" value="cancel" type="submit" formnovalidate aria-label="Cerrar">x</button>
+        </header>
+        <div class="form-grid">
+          <label>Contrasena actual<input name="current_password" type="password" required maxlength="12"></label>
+          <label>Nueva contrasena<input name="new_password" type="password" required maxlength="12"></label>
+        </div>
+        <footer>
+          <span></span>
+          <div>
+            <button class="ghost" value="cancel" type="submit" formnovalidate>Cancelar</button>
+            <button type="button" id="savePasswordButton">Guardar</button>
+          </div>
+        </footer>
+        <p class="form-message" id="passwordMessage"></p>
+      </form>
+    </dialog>
+
+    <dialog class="modal settings-modal" id="settingsDialog">
+      <form method="dialog" class="equipment-form settings-form" id="settingsForm">
+        <header>
+          <div>
+            <span class="eyebrow">Sistema</span>
+            <h3>Ajustes</h3>
+          </div>
+          <button class="icon-button" value="cancel" type="submit" formnovalidate aria-label="Cerrar">x</button>
+        </header>
+        <div class="settings-grid">
+          <article>
+            <span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"></path></svg></span>
+            <label>Tema
+              <select name="theme">
+                <option value="light">Claro</option>
+                <option value="dark">Oscuro</option>
+                <option value="system">Sistema</option>
+              </select>
+            </label>
+          </article>
+          <article>
+            <span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16"></path><path d="M9 5c0 6-2 10-5 13"></path><path d="M6 12h7"></path><path d="M13 19l4-9 4 9"></path><path d="M14.5 16h5"></path></svg></span>
+            <label>Idioma
+              <select name="language">
+                <option value="es">Espanol</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+          </article>
+          <article>
+            <span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg></span>
+            <label>Densidad
+              <select name="density">
+                <option value="comfortable">Comoda</option>
+                <option value="compact">Compacta</option>
+              </select>
+            </label>
+          </article>
+          <article>
+            <span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M4 12h16"></path><path d="M14 6l6 6-6 6"></path></svg></span>
+            <label>Menu lateral
+              <select name="sidebar">
+                <option value="expanded">Expandido</option>
+                <option value="collapsed">Contraido</option>
+              </select>
+            </label>
+          </article>
+          <article>
+            <span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg></span>
+            <label>Animaciones
+              <select name="motion">
+                <option value="on">Activadas</option>
+                <option value="reduced">Reducidas</option>
+              </select>
+            </label>
+          </article>
+          <article>
+            <span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"></path><path d="M4 10h16"></path><path d="M9 5v14"></path></svg></span>
+            <label>Filas por pagina
+              <select name="pageSize">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </label>
+          </article>
+        </div>
+        <footer>
+          <button class="ghost" type="button" id="resetSettingsButton">Restablecer</button>
+          <div>
+            <button class="ghost" value="cancel" type="submit" formnovalidate>Cancelar</button>
+            <button type="button" id="saveSettingsButton">Guardar ajustes</button>
+          </div>
+        </footer>
+        <p class="form-message" id="settingsMessage"></p>
+      </form>
+    </dialog>
+
+    <dialog class="modal catalog-modal" id="catalogDialog">
+      <form method="dialog" class="equipment-form" id="catalogForm">
+        <header>
+          <div>
+            <span class="eyebrow">Catalogos</span>
+            <h3 id="catalogTitle">Agregar registro</h3>
+          </div>
+          <button class="icon-button" value="cancel" type="submit" formnovalidate aria-label="Cerrar">x</button>
+        </header>
+
+        <input type="hidden" name="catalog_type">
+        <div class="form-grid catalog-fields" id="catalogFields"></div>
+
+        <footer>
+          <span></span>
+          <div>
+            <button class="ghost" value="cancel" type="submit" formnovalidate>Cancelar</button>
+            <button type="button" id="saveCatalogButton">Guardar</button>
+          </div>
+        </footer>
+        <p class="form-message" id="catalogMessage"></p>
+      </form>
+    </dialog>
+
+    <script src="../assets/js/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+    <script src="../assets/js/app.min.js?v=1"></script>
+  </body>
+</html>

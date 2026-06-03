@@ -1,0 +1,45 @@
+{
+  "name": "sati-timsa",
+  "version": "1.0.0",
+  "description": "SATI-TIMSA - Sistema de Administracion de Tecnologias de la Informacion para inventario logistico.",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "dev": "node --watch backend/src/server.js",
+    "start": "node backend/src/server.js",
+    "db:schema": "node backend/src/scripts/runSql.js db/schema.sql",
+    "db:seed": "node backend/src/scripts/runSql.js db/seed.sql",
+    "db:backup": "powershell -ExecutionPolicy Bypass -File scripts/backup-postgres.ps1",
+    "admin:create": "node backend/src/scripts/createAdmin.js",
+    "email:test": "node scripts/test-smtp.js",
+    "build:frontend": "node scripts/build-frontend.js",
+    "check": "node --check backend/src/server.js",
+    "check:all": "node --check backend/src/server.js && node --check private/frontend/app.js",
+    "quality:gate": "npm run build:frontend && npm run check:all && npm audit --audit-level=high"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "csv-parse": "^6.2.1",
+    "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.7",
+    "pdfkit": "^0.15.2",
+    "pg": "^8.13.1",
+    "qrcode": "^1.5.4",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^5.4.3",
+    "terser": "^5.48.0"
+  }
+}
