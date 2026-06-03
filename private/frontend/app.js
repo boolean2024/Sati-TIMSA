@@ -483,7 +483,7 @@ function defaultSettings() {
     sidebar: 'expanded',
     motion: 'on',
     pageSize: '25',
-    printerIP: ''
+    printerIP: '10.132.4.51'
   };
 }
 
@@ -914,8 +914,8 @@ async function printToZebra() {
   const item = state.equipmentProfile?.item;
   if (!item) return;
   let printerIP = (normalizedSettings().printerIP || '').trim();
-  if (!printerIP) {
-    printerIP = prompt(uiText('Ingrese la IP de la impresora Zebra:', 'Enter Zebra printer IP:'));
+  if (!printerIP || printerIP === 'CAMBIAR_IP') {
+    printerIP = prompt(uiText('Ingrese la IP de la impresora Zebra:', 'Enter Zebra printer IP:'), '10.132.4.51');
     if (!printerIP) return;
     state.settings.printerIP = printerIP;
     saveSettingsState();
