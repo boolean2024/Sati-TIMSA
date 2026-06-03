@@ -924,7 +924,7 @@ async function printToZebra() {
   const button = $('#printToZebraButton');
   if (button) button.disabled = true;
   try {
-    const res = await api('/api/print/zpl', 'POST', { zpl, printerIP });
+    const res = await api('/print/zpl', 'POST', { zpl, printerIP });
     toast(res.message || uiText('Etiqueta enviada a la impresora.', 'Label sent to printer.'), 'success');
   } catch (err) {
     const msg = err.message || uiText('Error al enviar a la impresora.', 'Error sending to printer.');
