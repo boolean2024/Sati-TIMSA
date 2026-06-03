@@ -2796,6 +2796,10 @@ function formPayload() {
     data.status = 'activo';
     data.purchase_date = '';
     data.warranty_until = '';
+    if (!data.serial_number || data.serial_number.trim().length < 2) {
+      const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
+      data.serial_number = `ACC-${rand}`;
+    }
   }
 
   data.purchase_date = normalizeOptionalDateField('purchase_date', 'Fecha de compra');

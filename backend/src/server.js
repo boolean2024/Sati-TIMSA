@@ -39,7 +39,7 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'],
-        styleSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: imageSources,
         connectSrc: ["'self'", ...env.appUrls],
         formAction: ["'self'"],
