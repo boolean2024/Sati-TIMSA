@@ -343,6 +343,8 @@ const translationPairs = [
   ['Modificar', 'Edit'],
   ['Imprimir etiqueta', 'Print label'],
   ['Descargar ZPL', 'Download ZPL'],
+  ['Imprimir en Zebra', 'Print to Zebra'],
+  ['Imprimiendo...', 'Printing...'],
   ['Codigo de barras', 'Barcode'],
   ['Etiqueta generada para impresion', 'Label ready for printing'],
   ['Usuario actualizado.', 'User updated.'],
@@ -480,7 +482,8 @@ function defaultSettings() {
     density: 'comfortable',
     sidebar: 'expanded',
     motion: 'on',
-    pageSize: '25'
+    pageSize: '25',
+    printerIP: ''
   };
 }
 
@@ -525,6 +528,9 @@ function syncSettingsForm() {
   settingsForm.elements.sidebar.value = settings.sidebar;
   settingsForm.elements.motion.value = settings.motion;
   settingsForm.elements.pageSize.value = settings.pageSize;
+  if (settingsForm.elements.printerIP) {
+    settingsForm.elements.printerIP.value = settings.printerIP || '';
+  }
 }
 
 function openSettingsDialog() {
@@ -904,6 +910,30 @@ function downloadZpl() {
   toast(uiText('Archivo ZPL descargado', 'ZPL file downloaded'), 'success');
 }
 
+async function printToZebra() {
+  const item = state.equipmentProfile?.item;
+  if (!item) return;
+  let printerIP = (normalizedSettings().printerIP || '').trim();
+  if (!printerIP) {
+    printerIP = prompt(uiText('Ingrese la IP de la impresora Zebra:', 'Enter Zebra printer IP:'));
+    if (!printerIP) return;
+    state.settings.printerIP = printerIP;
+    saveSettingsState();
+  }
+  const zpl = generateZpl(item);
+  const button = $('#printToZebraButton');
+  if (button) button.disabled = true;
+  try {
+    const res = await api('/api/print/zpl', 'POST', { zpl, printerIP });
+    toast(res.message || uiText('Etiqueta enviada a la impresora.', 'Label sent to printer.'), 'success');
+  } catch (err) {
+    const msg = err.message || uiText('Error al enviar a la impresora.', 'Error sending to printer.');
+    toast(uiText(`Error: ${msg}`, `Error: ${msg}`), 'error');
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 function renderAssetLabel(item) {
   const container = $('#equipmentLabelPreview');
   if (!container) return;
@@ -911,6 +941,7 @@ function renderAssetLabel(item) {
     <div class="label-actions">
       <button class="ghost" type="button" id="printAssetLabelButton">${uiText('Imprimir etiqueta', 'Print label')}</button>
       <button class="ghost" type="button" id="downloadZplButton">${uiText('Descargar ZPL', 'Download ZPL')}</button>
+      <button class="ghost" type="button" id="printToZebraButton">${uiText('Imprimir en Zebra', 'Print to Zebra')}</button>
     </div>
   `;
   try {
@@ -927,6 +958,7 @@ function renderAssetLabel(item) {
   }
   $('#printAssetLabelButton')?.addEventListener('click', printAssetLabel);
   $('#downloadZplButton')?.addEventListener('click', downloadZpl);
+  $('#printToZebraButton')?.addEventListener('click', printToZebra);
 }
 
 function printAssetLabel() {

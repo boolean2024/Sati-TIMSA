@@ -15,6 +15,7 @@ const auditRoutes = require('./routes/auditRoutes');
 const userRoutes = require('./routes/userRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const stockRoutes = require('./routes/stockRoutes');
+const printRoutes = require('./routes/printRoutes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { csrfProtection } = require('./middleware/csrf');
 
@@ -151,6 +152,7 @@ app.use('/api/equipment', inventoryRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/stock', stockRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/print', printRoutes);
 app.use('/api', notFound);
 
 app.use(express.static(publicDir));
