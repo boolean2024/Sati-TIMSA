@@ -39,7 +39,11 @@ if (isProduction) {
     errors.push('APP_URL must be the public production URL, not localhost.');
   }
 
-  if (!process.env.PGSSLMODE || ['disable', 'false', 'off'].includes(process.env.PGSSLMODE.toLowerCase())) {
+  const pgSslEnv = (process.env.PGSSLMODE || '').toLowerCase();
+  const isCloudDb = /supabase|render|vercel/i.test(process.env.DATABASE_URL || '');
+  if (!pgSslEnv && isCloudDb) {
+    // auto-detect: cloud DBs require SSL
+  } else if (['disable', 'false', 'off'].includes(pgSslEnv)) {
     errors.push('PGSSLMODE must be set to "require" or "verify-full" in production.');
   }
 
@@ -55,7 +59,7 @@ module.exports = {
   appUrl,
   appUrls,
   databaseUrl: process.env.DATABASE_URL,
-  pgSslMode: process.env.PGSSLMODE || 'disable',
+  pgSslMode: process.env.PGSSLMODE || (isProduction ? 'require' : 'disable'),
   pgPoolMax: Number(process.env.PG_POOL_MAX || defaultPoolMax),
   pgIdleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS || 30000),
   pgConnectionTimeoutMillis: Number(process.env.PG_CONNECTION_TIMEOUT_MS || 8000),
