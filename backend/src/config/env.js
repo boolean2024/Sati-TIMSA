@@ -41,9 +41,7 @@ if (isProduction) {
 
   const pgSslEnv = (process.env.PGSSLMODE || '').toLowerCase();
   const isCloudDb = /supabase|render|vercel/i.test(process.env.DATABASE_URL || '');
-  if (!pgSslEnv && isCloudDb) {
-    // auto-detect: cloud DBs require SSL
-  } else if (['disable', 'false', 'off'].includes(pgSslEnv)) {
+  if ((!pgSslEnv && !isCloudDb) || ['disable', 'false', 'off'].includes(pgSslEnv)) {
     errors.push('PGSSLMODE must be set to "require" or "verify-full" in production.');
   }
 
