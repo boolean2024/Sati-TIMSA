@@ -868,52 +868,6 @@ function assetLabelHtml(item) {
   `;
 }
 
-let logoZplCache = '';
-
-async function preloadLogoZpl() {
-  try {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = 'assets/img/hutchison_ports_timsa_logo.jpg';
-    });
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const targetW = 80, targetH = 25;
-    canvas.width = targetW;
-    canvas.height = targetH;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, targetW, targetH);
-    ctx.drawImage(img, 0, 0, targetW, targetH);
-    const imageData = ctx.getImageData(0, 0, targetW, targetH);
-    const data = imageData.data;
-    const bytesPerRow = Math.ceil(targetW / 8);
-    const totalBytes = bytesPerRow * targetH;
-    const hexRows = [];
-    for (let row = 0; row < targetH; row++) {
-      let rowHex = '';
-      for (let col = 0; col < bytesPerRow; col++) {
-        let byte = 0;
-        for (let bit = 0; bit < 8; bit++) {
-          const pixelX = col * 8 + bit;
-          if (pixelX < targetW) {
-            const idx = (row * targetW + pixelX) * 4;
-            const brightness = data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
-            if (brightness < 128) byte |= (1 << (7 - bit));
-          }
-        }
-        rowHex += byte.toString(16).toUpperCase().padStart(2, '0');
-      }
-      hexRows.push(rowHex);
-    }
-    logoZplCache = `^FO5,2^GFA,${totalBytes},${totalBytes},${bytesPerRow},${hexRows.join('')}^FS`;
-  } catch (e) {
-    logoZplCache = '';
-  }
-}
-
 function zplEscape(text) {
   return String(text).replace(/[\^~\\]/g, '').substring(0, 80);
 }
@@ -931,8 +885,8 @@ function generateZpl(item) {
 ^MD15
 ^CI28
 ^LH5,2
-^FO5,3^A0N,14,14^FB398,1,,C^FDHUTCHISONPORTS TIMSA^FS
-^FO270,3^A0N,14,14^FB128,1,,R^FDID: ${assetId}^FS
+^FO5,3^A0N,14,14^FB260,1,,L^FDHUTCHISONPORTS TIMSA^FS
+^FO270,3^A0N,14,14^FB130,1,,R^FDID: ${assetId}^FS
 ^FO5,30^A0N,28,28^FB398,1,,C^FD${type}^FS
 ^FO30,68^BY2,2,55^BCN,55,Y,N,N^FD${serial}^FS
 ^FO5,142^A0N,16,16^FB398,1,,C^FD${serial}^FS
@@ -4007,5 +3961,4 @@ $('#savePasswordButton').addEventListener('click', async () => {
 });
 
 applySettings();
-preloadLogoZpl();
 boot();
