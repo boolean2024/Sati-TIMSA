@@ -517,6 +517,7 @@ const translationPairs = [
   ['Cerrar sesion', 'Logout'],
   ['Resguardo', 'Assigned hold'],
   ['Baja', 'Retired'],
+  ['No se pudo conectar con la impresora. ¿Descargar archivo ZPL para imprimir manualmente?', 'Could not connect to printer. Download ZPL file to print manually?'],
 ];
 
 document.body.appendChild(equipmentPreview);
@@ -1074,12 +1075,36 @@ async function printToZebra() {
   const zpl = generateZpl(item);
   const button = $('#printToZebraButton');
   if (button) button.disabled = true;
+  let sent = false;
+  const body = JSON.stringify({ zpl, printerIP });
+
   try {
-    const res = await api('/print/zpl', { method: 'POST', body: JSON.stringify({ zpl, printerIP }) });
+    const res = await api('/print/zpl', { method: 'POST', body });
     toast(res.message || uiText('Etiqueta enviada a la impresora.', 'Label sent to printer.'), 'success');
-  } catch (err) {
-    const msg = err.message || uiText('Error al enviar a la impresora.', 'Error sending to printer.');
-    toast(uiText(`Error: ${msg}`, `Error: ${msg}`), 'error');
+    sent = true;
+  } catch {
+    try {
+      const relayRes = await fetch('http://localhost:3001/api/print/zpl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
+      if (relayRes.ok) {
+        const data = await relayRes.json();
+        toast(data.message || uiText('Etiqueta enviada a la impresora.', 'Label sent to printer.'), 'success');
+        sent = true;
+      } else {
+        throw new Error();
+      }
+    } catch {
+      const download = confirm(
+        uiText(
+          'No se pudo conectar con la impresora. ¿Descargar archivo ZPL para imprimir manualmente?',
+          'Could not connect to printer. Download ZPL file to print manually?'
+        )
+      );
+      if (download) downloadZpl();
+    }
   } finally {
     if (button) button.disabled = false;
   }

@@ -11,6 +11,7 @@
     "db:backup": "powershell -ExecutionPolicy Bypass -File scripts/backup-postgres.ps1",
     "admin:create": "node backend/src/scripts/createAdmin.js",
     "email:test": "node scripts/test-smtp.js",
+    "print:relay": "node scripts/print-relay.js",
     "build:frontend": "node scripts/build-frontend.js",
     "check": "node --check backend/src/server.js",
     "check:all": "node --check backend/src/server.js && node --check private/frontend/app.js",
