@@ -66,6 +66,23 @@ async function runMigrations() {
       CREATE INDEX IF NOT EXISTS idx_token_blacklist_blacklisted_at
       ON token_blacklist(blacklisted_at)
     `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        text TEXT NOT NULL,
+        due_at TIMESTAMPTZ NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_notes_user_id
+      ON notes(user_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_notes_due_at
+      ON notes(due_at)
+    `);
     console.log('DB migrations applied successfully');
   } catch (error) {
     console.error('DB migration error:', error.message);

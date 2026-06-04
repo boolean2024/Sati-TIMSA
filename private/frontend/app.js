@@ -1,5 +1,4 @@
 const settingsStorageKey = 'sati_settings';
-const notesStorageKey = 'sati_notes';
 
 function readStoredJson(key, fallback) {
   try {
@@ -37,7 +36,7 @@ const state = {
   inventoryScope: 'all',
   viewHistory: [],
   settings: initialSettings(),
-  notes: readStoredJson(notesStorageKey, [])
+  notes: []
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -579,6 +578,7 @@ function showDashboard() {
   updateAuthUi();
   applySidebarState();
   renderNotifications();
+  loadNotes();
   setView('console');
 }
 
@@ -1178,8 +1178,22 @@ function toast(message, type = 'info') {
   }, type === 'error' ? 6500 : 4200);
 }
 
-function saveNotes() {
-  localStorage.setItem(notesStorageKey, JSON.stringify(state.notes));
+async function loadNotes() {
+  try {
+    const data = await api('/notes');
+    state.notes = (data.notes || []).map((note) => ({
+      id: note.id,
+      text: note.text,
+      dueAt: note.due_at,
+      userId: note.user_id,
+      userName: note.user_name,
+      createdAt: note.created_at
+    }));
+    renderNotifications();
+  } catch {
+    state.notes = [];
+    renderNotifications();
+  }
 }
 
 function renderNotifications() {
@@ -3489,28 +3503,49 @@ $('#closeNotificationsButton').addEventListener('click', closeNotifications);
 menuButton.addEventListener('click', toggleSidebar);
 sidebarCollapseButton.addEventListener('click', openSettingsDialog);
 
-noteForm.addEventListener('submit', (event) => {
+noteForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(noteForm));
-  state.notes.unshift({
-    id: globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : String(Date.now()),
-    text: data.text.trim(),
-    dueAt: data.due_at,
-    userId: state.user?.id || 'system',
-    userName: state.user?.name || uiText('Usuario', 'User'),
-    createdAt: new Date().toISOString()
-  });
-  saveNotes();
+  noteForm.elements.submit.disabled = true;
+  try {
+    const result = await api('/notes', {
+      method: 'POST',
+      body: JSON.stringify({ text: data.text.trim(), due_at: data.due_at })
+    });
+    if (!result) throw new Error('Empty response');
+    state.notes.unshift({
+      id: result.note.id,
+      text: result.note.text,
+      dueAt: result.note.due_at,
+      userId: state.user?.id || 'system',
+      userName: result.note.user_name || state.user?.name || uiText('Usuario', 'User'),
+      createdAt: result.note.created_at
+    });
+  } catch {
+    state.notes.unshift({
+      id: globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : String(Date.now()),
+      text: data.text.trim(),
+      dueAt: data.due_at,
+      userId: state.user?.id || 'system',
+      userName: state.user?.name || uiText('Usuario', 'User'),
+      createdAt: new Date().toISOString()
+    });
+  }
+  noteForm.elements.submit.disabled = false;
   noteForm.reset();
   noteForm.elements.due_at.value = defaultReminderDate();
   renderNotifications();
 });
 
-$('#notificationList').addEventListener('click', (event) => {
+$('#notificationList').addEventListener('click', async (event) => {
   const button = event.target.closest('[data-note-delete]');
   if (!button) return;
+  try {
+    await api('/notes/' + button.dataset.noteDelete, { method: 'DELETE' });
+  } catch {
+    // fallback: try local delete anyway
+  }
   state.notes = state.notes.filter((note) => note.id !== button.dataset.noteDelete);
-  saveNotes();
   renderNotifications();
 });
 

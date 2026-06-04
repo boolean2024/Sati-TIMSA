@@ -16,6 +16,7 @@ const userRoutes = require('./routes/userRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const stockRoutes = require('./routes/stockRoutes');
 const printRoutes = require('./routes/printRoutes');
+const notesRoutes = require('./routes/notesRoutes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { csrfProtection, csrfTokenEndpoint } = require('./middleware/csrf');
 
@@ -153,6 +154,7 @@ app.use('/api/maintenance', writeRateLimit, maintenanceRoutes);
 app.use('/api/stock', writeRateLimit, stockRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/print', printRoutes);
+app.use('/api/notes', writeRateLimit, notesRoutes);
 app.use('/api', notFound);
 
 app.use(express.static(publicDir));
