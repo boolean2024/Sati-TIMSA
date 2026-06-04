@@ -947,7 +947,7 @@ function closeOpenDialogs() {
 }
 
 function defaultReminderDate() {
-  const date = new Date(Date.now() + 60 * 60 * 1000);
+  const date = new Date();
   return date.getFullYear() + '-' +
     String(date.getMonth() + 1).padStart(2, '0') + '-' +
     String(date.getDate()).padStart(2, '0') + 'T' +
