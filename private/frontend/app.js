@@ -3624,6 +3624,14 @@ $('#searchInput').addEventListener('input', () => {
   clearTimeout(window.searchTimer);
   window.searchTimer = setTimeout(loadInventory, 250);
 });
+$('#searchInput').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    clearTimeout(window.searchTimer);
+    state.hardwareGroup = null;
+    state.inventoryMeta.page = 1;
+    loadInventory();
+  }
+});
 
 $('#typeFilter').addEventListener('change', () => {
   state.hardwareGroup = null;
@@ -3722,6 +3730,13 @@ $('#recentSearchFilter').addEventListener('input', () => {
     loadRecentChanges();
   }, 250);
 });
+$('#recentSearchFilter').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    clearTimeout(window.recentSearchTimer);
+    state.recentMeta.page = 1;
+    loadRecentChanges();
+  }
+});
 
 $('#prevRecentPageButton').addEventListener('click', () => {
   if (state.recentMeta.page <= 1) return;
@@ -3801,6 +3816,12 @@ $('#stockAreaFilter').addEventListener('change', loadStock);
 $('#stockSearchInput').addEventListener('input', () => {
   clearTimeout(window.stockSearchTimer);
   window.stockSearchTimer = setTimeout(loadStock, 250);
+});
+$('#stockSearchInput').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    clearTimeout(window.stockSearchTimer);
+    loadStock();
+  }
 });
 
 $('#stockList').addEventListener('click', (event) => {
