@@ -74,6 +74,10 @@ let recordContextTarget = null;
 let dashboardChartInstances = {};
 let dashboardRefreshTimer = null;
 const apiBaseUrl = String(window.SATI_API_BASE_URL || '').replace(/\/$/, '');
+function getCookieValue(name) {
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
 const joinKey = (...parts) => parts.join('_');
 const fieldKeys = {
   au: joinKey('assigned', 'user'),
@@ -374,7 +378,37 @@ const translationPairs = [
   ['Excel generado correctamente.', 'Excel generated successfully.'],
   ['Cambios recientes exportados.', 'Recent changes exported.'],
   ['Ajustes aplicados correctamente.', 'Settings applied successfully.'],
-  ['Contrasena reiniciada.', 'Password reset.']
+  ['Contrasena reiniciada.', 'Password reset.'],
+  ['Agregado por', 'Added by'],
+  ['Sin notas pendientes.', 'No pending notes.'],
+  ['Equipo reparado y regresado a activo', 'Equipment repaired and returned to active'],
+  ['Equipo reparado.', 'Equipment repaired.'],
+  ['Reparado: ', 'Repaired: '],
+  ['Guardando...', 'Saving...'],
+  ['Expandir menu', 'Expand menu'],
+  ['Contraer menu', 'Collapse menu'],
+  ['Pase el cursor para ver detalles completos.', 'Hover for full details.'],
+  ['Detalles completos', 'Full details'],
+  ['Importar equipos desde CSV?', 'Import equipment from CSV?'],
+  ['Importacion completa: equipos.', 'Import complete: equipment.'],
+  ['Eliminar este equipo del inventario?', 'Delete this equipment from inventory?'],
+  ['Seleccionar equipo', 'Select equipment'],
+  ['Cargando inventario...', 'Loading inventory...'],
+  ['Mostrando eventos', 'Showing events'],
+  ['eventos', 'events'],
+  ['Sin cambios para esta consulta.', 'No changes for this query.'],
+  ['Sin eventos de auditoria.', 'No audit events.'],
+  ['Buscar inventario', 'Search inventory'],
+  ['Buscar por ID, serie, usuario, ubicacion o modelo', 'Search by ID, serial, user, location or model'],
+  ['Abrir ajustes', 'Open settings'],
+  ['Eliminar opcion', 'Delete option'],
+  ['Sin notas', 'No notes'],
+  ['Sin mantenimiento.', 'No maintenance.'],
+  ['Sistema', 'System'],
+  ['Primera', 'First'],
+  ['Anterior', 'Previous'],
+  ['Siguiente', 'Next'],
+  ['Ultima', 'Last'],
 ];
 
 document.body.appendChild(equipmentPreview);
@@ -395,12 +429,15 @@ function clearStoredAuth() {
 }
 
 async function api(path, options = {}) {
+  const mutating = options.method && !['GET', 'HEAD'].includes(options.method);
+  const xsrfToken = getCookieValue('sati_xsrf');
   const response = await fetch(`${apiBaseUrl}/api${path}`, {
     ...options,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
+      ...(xsrfToken && mutating ? { 'x-xsrf-token': xsrfToken } : {}),
       ...(options.headers || {})
     }
   });
@@ -462,8 +499,8 @@ function applySidebarState() {
   const collapsed = state.settings.sidebar === 'collapsed' || localStorage.getItem('sati_sidebar_collapsed') === 'true';
   dashboardView.classList.toggle('sidebar-collapsed', collapsed);
   menuButton.setAttribute('aria-expanded', String(!collapsed));
-  menuButton.setAttribute('aria-label', collapsed ? 'Expandir menu' : 'Contraer menu');
-  sidebarCollapseButton.setAttribute('aria-label', 'Abrir ajustes');
+  menuButton.setAttribute('aria-label', collapsed ? uiText('Expandir menu', 'Expand menu') : uiText('Contraer menu', 'Collapse menu'));
+  sidebarCollapseButton.setAttribute('aria-label', uiText('Abrir ajustes', 'Open settings'));
 }
 
 function toggleSidebar() {
@@ -1022,11 +1059,11 @@ function renderNotifications() {
         <span>${escapeHtml(formatDate(note.dueAt))}</span>
       </div>
       <footer>
-        <span>Agregado por ${escapeHtml(note.userName)}</span>
-        <button class="ghost note-delete" type="button" data-note-delete="${escapeHtml(note.id)}">Eliminar</button>
+        <span>${uiText('Agregado por', 'Added by')} ${escapeHtml(note.userName)}</span>
+        <button class="ghost note-delete" type="button" data-note-delete="${escapeHtml(note.id)}">${uiText('Eliminar', 'Delete')}</button>
       </footer>
     </article>
-  `).join('') || '<p class="empty-module">Sin notas pendientes.</p>';
+  `).join('') || `<p class="empty-module">${uiText('Sin notas pendientes.', 'No pending notes.')}</p>`;
   translateStaticText();
 }
 
@@ -1421,10 +1458,10 @@ function renderPreview(item) {
   equipmentPreview.innerHTML = esc`
     <div class="hover-detail-header">
       <div>
-        <span class="eyebrow">Detalles completos</span>
+        <span class="eyebrow">${uiText('Detalles completos', 'Full details')}</span>
         <h3>${item.brand} ${item.model}</h3>
       </div>
-      <button class="icon-button detail-close" type="button" data-close-preview aria-label="Cerrar">x</button>
+      <button class="icon-button detail-close" type="button" data-close-preview aria-label="${uiText('Cerrar', 'Close')}">x</button>
     </div>
     <div class="detail-hero">
       <div class="equipment-art">${raw(productIcon(item?.equipment_type, 'lg'))}</div>
@@ -1898,9 +1935,9 @@ function renderStockView() {
         <div><span>Area</span><strong>${escapeHtml(item.area)}</strong></div>
         <div><span>Modelo</span><strong>${escapeHtml(item.model)}</strong></div>
       </div>
-      <p>${escapeHtml(item.notes || 'Pase el cursor para ver detalles completos.')}</p>
+      <p>${escapeHtml(item.notes || uiText('Pase el cursor para ver detalles completos.', 'Hover for full details.'))}</p>
     </article>
-  `).join('') || '<p class="empty-module">Sin dispositivos en stock para esta consulta.</p>';
+  `).join('') || `<p class="empty-module">${uiText('Sin dispositivos en stock para esta consulta.', 'No stock devices for this query.')}</p>`;
   translateStaticText();
 }
 
@@ -2430,18 +2467,18 @@ async function loadEquipmentProfile(id) {
 
 function historyAssignmentText(entry) {
   if (entry.event_type === 'MAINTENANCE_COMPLETED') {
-    return 'Equipo reparado y regresado a activo';
+    return uiText('Equipo reparado y regresado a activo', 'Equipment repaired and returned to active');
   }
   const current = entry[fieldKeys.au] || entry.new_data?.[fieldKeys.au] || '';
   const previous = entry[joinKey('previous', 'assigned', 'user')] || entry.previous_data?.[fieldKeys.au] || '';
   if (current && previous && current !== previous) {
-    return `Asignado a: ${current} (antes: ${previous})`;
+    return uiText(`Asignado a: ${current} (antes: ${previous})`, `Assigned to: ${current} (was: ${previous})`);
   }
   if (current) {
-    return `Asignado a: ${current}`;
+    return uiText(`Asignado a: ${current}`, `Assigned to: ${current}`);
   }
   if (previous) {
-    return `Sin usuario asignado (antes: ${previous})`;
+    return uiText(`Sin usuario asignado (antes: ${previous})`, `No user assigned (was: ${previous})`);
   }
   return 'Sin usuario asignado';
 }
@@ -2449,7 +2486,7 @@ function historyAssignmentText(entry) {
 function historyCommentText(entry) {
   if (entry.event_type === 'MAINTENANCE_COMPLETED') {
     const notes = String(entry.new_data?.notes || '').trim();
-    return notes ? `Reparado: ${notes}` : 'Equipo reparado.';
+    return notes ? `${uiText('Reparado: ', 'Repaired: ')}${notes}` : uiText('Equipo reparado.', 'Equipment repaired.');
   }
   const current = String(entry.new_data?.notes || '').trim();
   const previous = String(entry.previous_data?.notes || '').trim();
@@ -2476,12 +2513,12 @@ function renderEquipmentProfile(profile) {
   $('#equipmentHistoryList').innerHTML = commentHistory.map((entry) => `
     <div>
       <strong>${escapeHtml(entry.comment)}</strong>
-      <span>${escapeHtml(entry.changed_by || 'Sistema')} &middot; ${escapeHtml(formatDate(entry.created_at))} &middot; ${escapeHtml(historyAssignmentText(entry))}</span>
+      <span>${escapeHtml(entry.changed_by || uiText('Sistema', 'System'))} &middot; ${escapeHtml(formatDate(entry.created_at))} &middot; ${escapeHtml(historyAssignmentText(entry))}</span>
     </div>
-  `).join('') || '<p class="empty-module">Sin comentarios guardados.</p>';
+  `).join('') || `<p class="empty-module">${uiText('Sin comentarios guardados.', 'No saved comments.')}</p>`;
   $('#equipmentMaintenanceList').innerHTML = (profile.maintenance || []).map((entry) => `
-    <div><strong>${escapeHtml(phaseLabel(entry.phase))}</strong><span>${escapeHtml(formatDate(entry.updated_at))} &middot; ${escapeHtml(entry.notes || 'Sin notas')}</span></div>
-  `).join('') || '<p class="empty-module">Sin mantenimiento.</p>';
+    <div><strong>${escapeHtml(phaseLabel(entry.phase))}</strong><span>${escapeHtml(formatDate(entry.updated_at))} &middot; ${escapeHtml(entry.notes || uiText('Sin notas', 'No notes'))}</span></div>
+  `).join('') || `<p class="empty-module">${uiText('Sin mantenimiento.', 'No maintenance.')}</p>`;
 }
 
 async function openHardwareGroup(group) {
@@ -2738,7 +2775,7 @@ async function importCsvFile(file) {
     const firstError = preview.rows?.find((row) => row.errors?.length)?.errors?.[0] || 'Revise el CSV.';
     throw new Error(`CSV con errores: ${firstError}`);
   }
-  if (!confirm(`Importar ${preview.valid} equipos desde CSV?`)) return;
+  if (!confirm(uiText(`Importar ${preview.valid} equipos desde CSV?`, `Import ${preview.valid} equipment from CSV?`))) return;
 
   const commitData = new FormData();
   commitData.append('file', file);
@@ -2750,7 +2787,7 @@ async function importCsvFile(file) {
   });
   const result = await commitResponse.json().catch(() => ({}));
   if (!commitResponse.ok) throw new Error(result.message || 'No se pudo importar el CSV.');
-  toast(`Importacion completa: ${result.imported} equipos.`, 'success');
+  toast(uiText(`Importacion completa: ${result.imported} equipos.`, `Import complete: ${result.imported} equipment.`), 'success');
   await loadLookups();
   await loadInventory();
   await loadDashboardIfConsole();
@@ -2795,7 +2832,7 @@ function downloadImportTemplate() {
 
 function fillMaintenanceEquipmentOptions(selectedId = '') {
   const select = maintenanceForm.elements.equipment_id;
-  select.innerHTML = '<option value="">Seleccionar equipo</option>';
+  select.innerHTML = `<option value="">${uiText('Seleccionar equipo', 'Select equipment')}</option>`;
   state.items.forEach((item) => {
     const option = document.createElement('option');
     option.value = item.id;
@@ -3141,6 +3178,11 @@ async function exportInventoryExcel() {
 
 async function boot() {
   clearStoredAuth();
+  try {
+    await fetch(`${apiBaseUrl}/api/csrf-token`, { credentials: 'include' });
+  } catch (error) {
+    console.warn('No se pudo obtener token CSRF:', error.message);
+  }
   try {
     await api('/auth/logout', { method: 'POST' });
   } catch (error) {
@@ -3787,7 +3829,7 @@ $('#saveEquipmentButton').addEventListener('click', async () => {
   const saveButton = $('#saveEquipmentButton');
   const originalText = saveButton.textContent;
   saveButton.disabled = true;
-  saveButton.textContent = 'Guardando...';
+  saveButton.textContent = uiText('Guardando...', 'Saving...');
 
   try {
     const id = equipmentForm.elements.id.value;
@@ -3812,7 +3854,7 @@ $('#saveEquipmentButton').addEventListener('click', async () => {
 
 $('#deleteButton').addEventListener('click', async () => {
   const id = equipmentForm.elements.id.value;
-  if (!id || !confirm('Eliminar este equipo del inventario?')) return;
+  if (!id || !confirm(uiText('Eliminar este equipo del inventario?', 'Delete this equipment from inventory?'))) return;
 
   try {
     await api(`/equipment/${id}`, { method: 'DELETE' });
@@ -3857,7 +3899,7 @@ $('#saveStockButton').addEventListener('click', async () => {
   const saveButton = $('#saveStockButton');
   const originalText = saveButton.textContent;
   saveButton.disabled = true;
-  saveButton.textContent = 'Guardando...';
+  saveButton.textContent = uiText('Guardando...', 'Saving...');
   try {
     const id = stockForm.elements.id.value;
     await api(id ? `/stock/${id}` : '/stock', {

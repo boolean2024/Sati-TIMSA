@@ -62,7 +62,7 @@ async function authenticate(req, res, next) {
       return res.status(401).json({ message: 'Token requerido.' });
     }
 
-    if (isBlacklisted(token)) {
+    if (await isBlacklisted(token)) {
       return res.status(401).json({ message: 'Sesion invalida o expirada.' });
     }
 

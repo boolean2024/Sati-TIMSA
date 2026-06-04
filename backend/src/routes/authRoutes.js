@@ -225,7 +225,7 @@ router.get('/me', authenticate, (req, res) => {
   res.json({ user: req.user });
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
   const header = req.headers.authorization || '';
   const cookieHeader = req.headers.cookie || '';
   const satiCookie = cookieHeader.split(';').map((c) => c.trim()).find((c) => c.startsWith('sati_session='));
@@ -235,7 +235,7 @@ router.post('/logout', (req, res) => {
       ? satiCookie.slice('sati_session='.length)
       : null;
   if (token) {
-    blacklistToken(token);
+    await blacklistToken(token);
   }
   res.clearCookie('sati_session', sessionCookieOptions(false));
   res.status(204).send();

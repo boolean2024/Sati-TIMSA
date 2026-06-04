@@ -17,7 +17,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const stockRoutes = require('./routes/stockRoutes');
 const printRoutes = require('./routes/printRoutes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
-const { csrfProtection } = require('./middleware/csrf');
+const { csrfProtection, csrfTokenEndpoint } = require('./middleware/csrf');
 
 const app = express();
 const publicDir = path.join(__dirname, '..', '..', 'frontend');
@@ -141,16 +141,16 @@ app.get('/api/health', async (req, res, next) => {
     });
   }
 });
-
-app.use('/api', csrfProtection);
+app.get('/api/csrf-token', csrfTokenEndpoint);
 
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api', csrfProtection);
+app.use('/api/users', writeRateLimit, userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/lookups', lookupRoutes);
-app.use('/api/equipment', inventoryRoutes);
-app.use('/api/maintenance', maintenanceRoutes);
-app.use('/api/stock', stockRoutes);
+app.use('/api/equipment', writeRateLimit, inventoryRoutes);
+app.use('/api/maintenance', writeRateLimit, maintenanceRoutes);
+app.use('/api/stock', writeRateLimit, stockRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/print', printRoutes);
 app.use('/api', notFound);
