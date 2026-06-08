@@ -181,7 +181,15 @@ router.post('/password-reset/request', passwordResetLimiter, async (req, res, ne
   }
 });
 
-router.post('/password-reset/confirm', async (req, res, next) => {
+const passwordResetConfirmLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados intentos de verificacion. Intente mas tarde.' }
+});
+
+router.post('/password-reset/confirm', passwordResetConfirmLimiter, async (req, res, next) => {
   try {
     const data = resetConfirmSchema.parse(req.body);
     const { rows } = await db.query(

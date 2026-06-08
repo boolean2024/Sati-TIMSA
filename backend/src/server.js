@@ -43,7 +43,7 @@ app.use(
         scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: imageSources,
-        connectSrc: ["'self'", ...env.appUrls],
+        connectSrc: ["'self'", 'https://cdn.jsdelivr.net', ...env.appUrls],
         formAction: ["'self'"],
         frameAncestors: ["'none'"],
         baseUri: ["'self'"],
