@@ -90,7 +90,9 @@ async function runMigrations() {
       'ALTER TABLE equipment ALTER COLUMN location_id DROP NOT NULL',
       'ALTER TABLE equipment ALTER COLUMN area_id DROP NOT NULL',
       'ALTER TABLE stock_items ALTER COLUMN location_id DROP NOT NULL',
-      'ALTER TABLE stock_items ALTER COLUMN area_id DROP NOT NULL'
+      'ALTER TABLE stock_items ALTER COLUMN area_id DROP NOT NULL',
+      'ALTER TABLE equipment_models ALTER COLUMN brand_id DROP NOT NULL',
+      'ALTER TABLE areas ALTER COLUMN location_id DROP NOT NULL'
     ];
     for (const cmd of alterCmds) {
       try { await pool.query(cmd); } catch (_) { /* table or column may not exist */ }

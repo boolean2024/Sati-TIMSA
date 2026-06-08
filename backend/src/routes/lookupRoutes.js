@@ -284,6 +284,14 @@ const catalogFkTables = {
   areas: { cols: ['area_id'] }
 };
 
+/* All tables whose FK columns are nullable and should be cleared before a catalog DELETE. */
+const fkTableColumns = {
+  equipment:        ['equipment_type_id', 'brand_id', 'model_id', 'location_id', 'area_id'],
+  equipment_models: ['brand_id'],
+  stock_items:      ['location_id', 'area_id'],
+  areas:            ['location_id']
+};
+
 router.delete('/:kind/:id', authenticate, requireWriteAccess, async (req, res, next) => {
   const catalog = getCatalog(req.params.kind);
   if (!catalog) {
@@ -296,15 +304,17 @@ router.delete('/:kind/:id', authenticate, requireWriteAccess, async (req, res, n
        (e.g. stock_items lacks the column) does not abort the DELETE. */
     const fkInfo = catalogFkTables[catalog.table];
     if (fkInfo) {
-      for (const table of ['equipment', 'stock_items']) {
-        for (const column of fkInfo.cols) {
-          try {
-            await db.query(
-              `UPDATE ${table} SET ${column} = NULL WHERE ${column} = $1`,
-              [id]
-            );
-          } catch (_) {
-            /* column may still be NOT NULL if migration hasn't run, or table/column may not exist */
+      for (const column of fkInfo.cols) {
+        for (const [table, cols] of Object.entries(fkTableColumns)) {
+          if (cols.includes(column)) {
+            try {
+              await db.query(
+                `UPDATE ${table} SET ${column} = NULL WHERE ${column} = $1`,
+                [id]
+              );
+            } catch (_) {
+              /* column may still be NOT NULL if migration hasn't run, or table/column may not exist */
+            }
           }
         }
       }
