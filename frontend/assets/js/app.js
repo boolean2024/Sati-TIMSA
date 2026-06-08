@@ -2081,7 +2081,7 @@ function initCatalogSelects() {
   });
 }
 
-function getCatalogItems(kind, select) {
+function getCatalogItems(select) {
   if (select.name === 'area_id') {
     const form = select.closest('form');
     const locationId = Number(form?.elements?.location_id?.value);
