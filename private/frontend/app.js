@@ -3622,7 +3622,9 @@ function getCatalogItems(select) {
     const locationId = Number(form?.elements?.location_id?.value);
     return state.lookups.areas.filter((area) => !locationId || Number(area.location_id) === locationId);
   }
+  if (select.name === 'location_id') return inventoryLocations();
   const map = {
+    equipment_type_id: state.lookups.types,
     brand_id: state.lookups.brands,
     model_id: state.lookups.models,
   };
@@ -3645,8 +3647,10 @@ function initCatalogSelects() {
     dropdown.className = 'catalog-select-dropdown';
 
     const kindMap = {
+      equipment_type_id: 'types',
       brand_id: 'brands',
       model_id: 'models',
+      location_id: 'locations',
       area_id: 'areas'
     };
 

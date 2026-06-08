@@ -538,7 +538,9 @@
         <div class="form-grid">
           <label>Tipo
             <span class="field-with-action">
-              <select name="equipment_type_id" required></select>
+              <div class="catalog-select-wrap">
+                <select name="equipment_type_id" required></select>
+              </div>
               <button class="mini-action" type="button" data-add-catalog="type">Agregar</button>
             </span>
           </label>
@@ -560,7 +562,9 @@
           </label>
           <label>Ubicacion
             <span class="field-with-action">
-              <select name="location_id" required></select>
+              <div class="catalog-select-wrap">
+                <select name="location_id" required></select>
+              </div>
               <button class="mini-action" type="button" data-add-catalog="location">Agregar</button>
             </span>
           </label>
@@ -655,7 +659,9 @@
           <label>Cantidad<input name="quantity" type="number" min="0" step="1" required value="1"></label>
           <label>Ubicacion
             <span class="field-with-action">
-              <select name="location_id" required></select>
+              <div class="catalog-select-wrap">
+                <select name="location_id" required></select>
+              </div>
               <button class="mini-action" type="button" data-add-catalog="location">Agregar</button>
             </span>
           </label>
@@ -891,6 +897,6 @@
     <script src="../assets/js/config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-    <script src="../assets/js/app.min.js?v=7"></script>
+    <script src="../assets/js/app.min.js?v=8"></script>
   </body>
 </html>

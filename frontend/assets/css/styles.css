@@ -2536,9 +2536,13 @@ td small {
 }
 
 body[data-theme="dark"] .catalog-select-trigger {
-  background: var(--gray-900);
-  border-color: var(--gray-700);
-  color: var(--white);
+  background: #0a1728;
+  border-color: rgba(128, 158, 194, 0.38);
+  color: var(--gray-900);
+}
+
+body[data-theme="dark"] .catalog-select-trigger.placeholder {
+  color: var(--gray-500);
 }
 
 body[data-theme="dark"] .catalog-select-trigger:hover,
@@ -2547,16 +2551,16 @@ body[data-theme="dark"] .catalog-select-trigger.open {
 }
 
 body[data-theme="dark"] .catalog-select-dropdown {
-  background: var(--gray-900);
-  border-color: var(--gray-700);
+  background: #0a1728;
+  border-color: rgba(128, 158, 194, 0.38);
 }
 
 body[data-theme="dark"] .catalog-select-option {
-  color: var(--white);
+  color: var(--gray-900);
 }
 
 body[data-theme="dark"] .catalog-select-option:hover {
-  background: var(--gray-700);
+  background: rgba(128, 158, 194, 0.12);
 }
 
 body[data-theme="dark"] .catalog-select-option.selected {
