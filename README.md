@@ -1,74 +1,47 @@
 # SATI-TIMSA
 
-Sistema para controlar los activos de TI, accesorios, stock, mantenimiento y auditoria. Reemplaza el Excel por algo que siempre esta actualizado y accesible desde el navegador.
+Sistema de control de activos TI, accesorios, stock, mantenimiento y auditoría para Hutchison Ports TIMSA. Reemplaza el registro en Excel por una plataforma web centralizada, siempre actualizada y accesible desde cualquier navegador.
 
-## Como funciona
+## Stack
 
-```
-Navegador (HTML + CSS + JS)
-       ↕
-Node.js + Express (API)
-       ↕
-PostgreSQL (base de datos en la nube)
-```
+| Capa | Tecnología |
+|---|---|
+| Frontend | HTML, CSS, JavaScript vanilla |
+| Backend | Node.js, Express |
+| Base de datos | PostgreSQL (Supabase) |
+| Infraestructura | Vercel (serverless) |
 
-- **Frontend**: HTML, CSS y JavaScript natural, sin frameworks. Cambia de idioma al instante sin recargar.
-- **Backend**: API con Express. Seguridad normalita pero seria: JWT, doble cookie CSRF, limite de peticiones.
-- **Base de datos**: PostgreSQL en Supabase.
-- **Infraestructura**: Vercel (serverless). Cada push a main despliega automaticamente.
+## Funcionalidades
 
-## Lo que hace
+- **Inventario** — Altas, bajas, edición y búsqueda de equipos y accesorios. Cada activo tiene perfil, código de barras, historial y etiqueta para impresión Zebra.
+- **Stock** — Dispositivos en almacén organizados por ubicación y área.
+- **Mantenimiento** — Seguimiento por fases: Revisado → En proceso → Terminado. Al finalizar, el equipo vuelve a activo automáticamente.
+- **Auditoría** — Registro inmutable de todas las acciones del sistema.
+- **Usuarios** — Roles ADMIN, TI y PERSONAL con distintos niveles de acceso.
+- **Dashboard** — KPIs, gráficas interactivas, alertas de stock bajo y garantías próximas a vencer.
+- **Notas** — Recordatorios persistentes en base de datos.
+- **Importación/Exportación** — CSV, PDF, Excel y etiquetas Zebra.
 
-### Inventario de equipos y accesorios
-Lista, crea, edita y busca equipos (laptops, monitores, servidores, etc.) y accesorios (teclados, ratones, camaras...). Cada activo tiene su perfil, codigo de barras, historial y etiqueta para imprimir en Zebra.
+## Local
 
-### Stock
-Dispositivos en almacen organizados por ubicacion y area.
-
-### Mantenimiento
-Seguimiento por fases: Revisado → En proceso → Terminado. Cuando termina, el equipo vuelve automaticamente a activo.
-
-### Auditoria y cambios recientes
-Todo lo que pasa en el sistema queda registrado. No se puede borrar. Ideal para saber quien hizo que y cuando.
-
-### Usuarios
-Roles: ADMIN (todo), TI (opera inventario), PERSONAL (solo lectura).
-
-### Notas y recordatorios
-Se guardan en la base de datos, asi que no se pierden al cambiar de navegador o dispositivo.
-
-## Seguridad (lo basico)
-
-- Sesion por cookie segura (JWT). Sesion recordada hasta 7 dias.
-- Doble cookie CSRF: las operaciones de escribir necesitan un token especial.
-- Contrasenas con bcrypt.
-- Limite de intentos de login y de peticiones.
-- Headers HTTP restrictivos (CSP, HSTS, etc.).
-- SQL parametrizado, nada de inyeccion.
-- Lo que se borra (logout, cambio de contrasena) se invalida al instante.
-
-## Para correrlo local
-
-```
+```bash
 npm install
 npm run build:frontend
 npm start
 ```
 
-### Variables necesarias
-- `DATABASE_URL` — conexion a PostgreSQL
-- `JWT_SECRET` — clave de 32+ caracteres
-- `APP_URL` — dominio donde corre
+### Variables de entorno
 
-### Despliegue
-```
-vercel --prod
-```
+| Variable | Descripción |
+|---|---|
+| `DATABASE_URL` | Conexión a PostgreSQL |
+| `JWT_SECRET` | Clave de 32+ caracteres |
+| `APP_URL` | URL pública de la app |
 
-## Directorios rapidos
+## Estructura
 
-- `backend/src/routes/` — los endpoints de la API
-- `frontend/` — HTML, CSS, JS que ve el navegador
+- `backend/src/routes/` — Endpoints de la API
+- `frontend/` — HTML, CSS y JS del navegador
 - `private/frontend/` — JS fuente antes de minificar
-- `db/` — schema y migraciones SQL
-- `scripts/` — build, backup, relay de impresion Zebra
+- `db/` — Schema y migraciones SQL
+- `scripts/` — Build, backup, relay de impresión Zebra
