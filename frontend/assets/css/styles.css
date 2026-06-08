@@ -600,13 +600,6 @@ textarea:focus {
   white-space: nowrap;
 }
 
-.sidebar-logo-img {
-  height: 32px;
-  width: auto;
-  margin-bottom: 0.25rem;
-  object-fit: contain;
-}
-
 .dashboard.sidebar-collapsed .brand-line {
   justify-content: center;
   padding-left: 0.5rem;
