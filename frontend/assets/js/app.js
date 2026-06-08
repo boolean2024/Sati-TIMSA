@@ -1987,6 +1987,43 @@ stockForm.addEventListener('click', (event) => {
 
 $('#saveCatalogButton').addEventListener('click', saveCatalogEntry);
 
+equipmentForm.addEventListener('click', async (event) => {
+  const button = event.target.closest('[data-delete-catalog]');
+  if (!button) return;
+  const kind = button.dataset.deleteCatalog;
+  const select = button.closest('.field-with-action').querySelector('select');
+  const id = select?.value;
+  if (!id || !confirm(`Eliminar esta ${kind}?`)) return;
+  try {
+    await api(`/lookups/${kind}/${id}`, { method: 'DELETE' });
+    await loadLookups();
+    select.value = '';
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+stockForm.addEventListener('click', async (event) => {
+  const button = event.target.closest('[data-delete-catalog]');
+  if (!button) return;
+  const kind = button.dataset.deleteCatalog;
+  const select = button.closest('.field-with-action').querySelector('select');
+  const id = select?.value;
+  if (!id || !confirm(`Eliminar esta ${kind}?`)) return;
+  try {
+    await api(`/lookups/${kind}/${id}`, { method: 'DELETE' });
+    await loadLookups();
+    if (kind === 'location') {
+      stockForm.elements.location_id.value = '';
+      syncStockAreaOptions();
+    } else {
+      stockForm.elements.area_id.value = '';
+    }
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
 document.querySelectorAll('nav a[data-view]').forEach((link) => {
   link.addEventListener('click', async (event) => {
     event.preventDefault();

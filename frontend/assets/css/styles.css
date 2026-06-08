@@ -600,6 +600,13 @@ textarea:focus {
   white-space: nowrap;
 }
 
+.sidebar-logo-img {
+  height: 32px;
+  width: auto;
+  margin-bottom: 0.25rem;
+  object-fit: contain;
+}
+
 .dashboard.sidebar-collapsed .brand-line {
   justify-content: center;
   padding-left: 0.5rem;
@@ -2426,6 +2433,19 @@ td small {
   background: var(--gray-100);
   border-color: rgba(23, 155, 215, 0.35);
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.mini-action.delete {
+  color: var(--danger);
+  border-color: transparent;
+  padding: 0.5rem 0.55rem;
+  font-weight: 600;
+}
+
+.mini-action.delete:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  box-shadow: none;
 }
 
 .catalog-modal {

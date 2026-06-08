@@ -81,6 +81,7 @@
           <div class="brand-line">
             <button class="menu-button" id="menuButton" type="button" aria-label="Contraer menu" aria-expanded="true">Menu</button>
             <div class="sidebar-logo">
+              <img src="../assets/img/hutchison_ports_timsa_logo.jpg" alt="Hutchison Ports TIMSA" class="sidebar-logo-img">
               <span>HUTCHISON PORTS</span>
               <strong>TIMSA</strong>
             </div>
@@ -540,27 +541,37 @@
             <span class="field-with-action">
               <select name="equipment_type_id" required></select>
               <button class="mini-action" type="button" data-add-catalog="type">Agregar</button>
+              <button class="mini-action delete" type="button" data-delete-catalog="type" title="Eliminar tipo">x</button>
             </span>
           </label>
           <label>Marca
             <span class="field-with-action">
               <select name="brand_id" required></select>
               <button class="mini-action" type="button" data-add-catalog="brand">Agregar</button>
+              <button class="mini-action delete" type="button" data-delete-catalog="brand" title="Eliminar marca">x</button>
             </span>
           </label>
           <label>Modelo
             <span class="field-with-action">
               <select name="model_id" required></select>
               <button class="mini-action" type="button" data-add-catalog="model">Agregar</button>
+              <button class="mini-action delete" type="button" data-delete-catalog="model" title="Eliminar modelo">x</button>
             </span>
           </label>
           <label>Ubicacion
             <span class="field-with-action">
               <select name="location_id" required></select>
               <button class="mini-action" type="button" data-add-catalog="location">Agregar</button>
+              <button class="mini-action delete" type="button" data-delete-catalog="location" title="Eliminar ubicacion">x</button>
             </span>
           </label>
-          <label>Area<select name="area_id" required></select></label>
+          <label>Area
+            <span class="field-with-action">
+              <select name="area_id" required></select>
+              <button class="mini-action" type="button" data-add-catalog="area">Agregar</button>
+              <button class="mini-action delete" type="button" data-delete-catalog="area" title="Eliminar area">x</button>
+            </span>
+          </label>
           <label>Numero de serie
             <span class="field-with-action">
               <input name="serial_number" minlength="2">
@@ -646,12 +657,14 @@
             <span class="field-with-action">
               <select name="location_id" required></select>
               <button class="mini-action" type="button" data-add-catalog="location">Agregar</button>
+              <button class="mini-action delete" type="button" data-delete-catalog="location" title="Eliminar ubicacion">x</button>
             </span>
           </label>
           <label>Area
             <span class="field-with-action">
               <select name="area_id" required></select>
               <button class="mini-action" type="button" data-add-catalog="area">Agregar</button>
+              <button class="mini-action delete" type="button" data-delete-catalog="area" title="Eliminar area">x</button>
             </span>
           </label>
 
