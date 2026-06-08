@@ -2013,9 +2013,9 @@ function initCatalogSelects() {
 
     function renderOptions() {
       dropdown.innerHTML = '';
-      const kind = select.getAttribute('data-catalog-kind') || select.name.replace(/_id$/, '');
+      const kind = select.getAttribute('data-catalog-kind') || ({ equipment_type_id: 'type', brand_id: 'brand', model_id: 'model', location_id: 'location', area_id: 'area' })[select.name] || select.name.replace(/_id$/, '');
       const idField = select.name;
-      const items = state.lookups ? getCatalogItems(kind, select) : [];
+      const items = state.lookups ? getCatalogItems(select) : [];
 
       items.forEach((item) => {
         const opt = document.createElement('div');
