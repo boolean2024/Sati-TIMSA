@@ -297,10 +297,14 @@ router.delete('/:kind/:id', authenticate, requireWriteAccess, async (req, res, n
       if (fkInfo) {
         for (const table of ['equipment', 'stock_items']) {
           for (const column of fkInfo.cols) {
-            await client.query(
-              `UPDATE ${table} SET ${column} = NULL WHERE ${column} = $1`,
-              [id]
-            );
+            try {
+              await client.query(
+                `UPDATE ${table} SET ${column} = NULL WHERE ${column} = $1`,
+                [id]
+              );
+            } catch (_) {
+              /* stock_items table may not exist */
+            }
           }
         }
       }
