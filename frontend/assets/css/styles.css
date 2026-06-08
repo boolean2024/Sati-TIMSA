@@ -2520,7 +2520,7 @@ td small {
   height: 22px;
   border: none;
   background: transparent;
-  color: var(--gray-400);
+  color: var(--gray-500);
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.8rem;
