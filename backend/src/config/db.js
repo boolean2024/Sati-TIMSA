@@ -83,15 +83,18 @@ async function runMigrations() {
       CREATE INDEX IF NOT EXISTS idx_notes_due_at
       ON notes(due_at)
     `);
-    await pool.query(`
-      ALTER TABLE equipment ALTER COLUMN equipment_type_id DROP NOT NULL;
-      ALTER TABLE equipment ALTER COLUMN brand_id DROP NOT NULL;
-      ALTER TABLE equipment ALTER COLUMN model_id DROP NOT NULL;
-      ALTER TABLE equipment ALTER COLUMN location_id DROP NOT NULL;
-      ALTER TABLE equipment ALTER COLUMN area_id DROP NOT NULL;
-      ALTER TABLE stock_items ALTER COLUMN location_id DROP NOT NULL;
-      ALTER TABLE stock_items ALTER COLUMN area_id DROP NOT NULL;
-    `);
+    const alterCmds = [
+      'ALTER TABLE equipment ALTER COLUMN equipment_type_id DROP NOT NULL',
+      'ALTER TABLE equipment ALTER COLUMN brand_id DROP NOT NULL',
+      'ALTER TABLE equipment ALTER COLUMN model_id DROP NOT NULL',
+      'ALTER TABLE equipment ALTER COLUMN location_id DROP NOT NULL',
+      'ALTER TABLE equipment ALTER COLUMN area_id DROP NOT NULL',
+      'ALTER TABLE stock_items ALTER COLUMN location_id DROP NOT NULL',
+      'ALTER TABLE stock_items ALTER COLUMN area_id DROP NOT NULL'
+    ];
+    for (const cmd of alterCmds) {
+      try { await pool.query(cmd); } catch (_) { /* table or column may not exist */ }
+    }
     console.log('DB migrations applied successfully');
   } catch (error) {
     console.error('DB migration error:', error.message);
