@@ -1062,6 +1062,7 @@ async function loadLookups() {
   if (stockForm) fillElementSelect(stockForm.elements.location_id, inventoryLocations(), 'Seleccionar');
   syncAreaOptions();
   syncStockAreaOptions();
+  initCatalogSelects();
 }
 
 function syncTypeFilterOptions() {
@@ -1123,6 +1124,7 @@ function syncAreaOptions() {
   const locationId = Number(equipmentForm.elements.location_id.value);
   const areas = state.lookups.areas.filter((area) => !locationId || Number(area.location_id) === locationId);
   fillSelect('area_id', areas);
+  initCatalogSelects();
 }
 
 function syncStockAreaOptions() {
@@ -1132,6 +1134,7 @@ function syncStockAreaOptions() {
   const current = stockForm.elements.area_id.value;
   fillElementSelect(stockForm.elements.area_id, areas, 'Seleccionar');
   stockForm.elements.area_id.value = current;
+  initCatalogSelects();
 }
 
 function syncStockFilterAreas() {
@@ -1987,42 +1990,111 @@ stockForm.addEventListener('click', (event) => {
 
 $('#saveCatalogButton').addEventListener('click', saveCatalogEntry);
 
-equipmentForm.addEventListener('click', async (event) => {
-  const button = event.target.closest('[data-delete-catalog]');
-  if (!button) return;
-  const kind = button.dataset.deleteCatalog;
-  const select = button.closest('.field-with-action').querySelector('select');
-  const id = select?.value;
-  if (!id || !confirm(`Eliminar esta ${kind}?`)) return;
-  try {
-    await api(`/lookups/${kind}/${id}`, { method: 'DELETE' });
-    await loadLookups();
-    select.value = '';
-  } catch (error) {
-    alert(error.message);
-  }
-});
+function syncTriggerValue(select, trigger) {
+  const option = select.options[select.selectedIndex];
+  trigger.textContent = option ? option.textContent : 'Seleccionar';
+  trigger.classList.toggle('placeholder', !select.value);
+}
 
-stockForm.addEventListener('click', async (event) => {
-  const button = event.target.closest('[data-delete-catalog]');
-  if (!button) return;
-  const kind = button.dataset.deleteCatalog;
-  const select = button.closest('.field-with-action').querySelector('select');
-  const id = select?.value;
-  if (!id || !confirm(`Eliminar esta ${kind}?`)) return;
-  try {
-    await api(`/lookups/${kind}/${id}`, { method: 'DELETE' });
-    await loadLookups();
-    if (kind === 'location') {
-      stockForm.elements.location_id.value = '';
-      syncStockAreaOptions();
-    } else {
-      stockForm.elements.area_id.value = '';
+function initCatalogSelects() {
+  document.querySelectorAll('.catalog-select-wrap select').forEach((select) => {
+    const wrap = select.closest('.catalog-select-wrap');
+    if (wrap.querySelector('.catalog-select-trigger')) return;
+
+    select.style.display = 'none';
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'catalog-select-trigger placeholder';
+    trigger.textContent = 'Seleccionar';
+
+    const dropdown = document.createElement('div');
+    dropdown.className = 'catalog-select-dropdown';
+
+    function renderOptions() {
+      dropdown.innerHTML = '';
+      const kind = select.getAttribute('data-catalog-kind') || select.name.replace(/_id$/, '');
+      const idField = select.name;
+      const items = state.lookups ? getCatalogItems(kind, select) : [];
+
+      items.forEach((item) => {
+        const opt = document.createElement('div');
+        opt.className = 'catalog-select-option';
+        if (String(item.id) === select.value) opt.classList.add('selected');
+
+        const label = document.createElement('span');
+        label.textContent = item.name;
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'catalog-select-option-delete';
+        delBtn.textContent = 'x';
+        delBtn.title = 'Eliminar';
+
+        delBtn.addEventListener('click', async (event) => {
+          event.stopPropagation();
+          if (!confirm(`Eliminar "${item.name}"?`)) return;
+          try {
+            await api(`/lookups/${kind}/${item.id}`, { method: 'DELETE' });
+            await loadLookups();
+            dropdown.classList.remove('open');
+            trigger.classList.remove('open');
+          } catch (error) {
+            alert(error.message);
+          }
+        });
+
+        opt.addEventListener('click', () => {
+          select.value = item.id;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          syncTriggerValue(select, trigger);
+          dropdown.querySelector('.selected')?.classList.remove('selected');
+          opt.classList.add('selected');
+          dropdown.classList.remove('open');
+          trigger.classList.remove('open');
+        });
+
+        opt.appendChild(label);
+        opt.appendChild(delBtn);
+        dropdown.appendChild(opt);
+      });
     }
-  } catch (error) {
-    alert(error.message);
+
+    trigger.addEventListener('click', () => {
+      renderOptions();
+      dropdown.classList.toggle('open');
+      trigger.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!wrap.contains(event.target)) {
+        dropdown.classList.remove('open');
+        trigger.classList.remove('open');
+      }
+    });
+
+    select.addEventListener('change', () => syncTriggerValue(select, trigger));
+
+    wrap.appendChild(trigger);
+    wrap.appendChild(dropdown);
+    syncTriggerValue(select, trigger);
+  });
+}
+
+function getCatalogItems(kind, select) {
+  if (select.name === 'area_id') {
+    const form = select.closest('form');
+    const locationId = Number(form?.elements?.location_id?.value);
+    return state.lookups.areas.filter((area) => !locationId || Number(area.location_id) === locationId);
   }
-});
+  if (select.name === 'location_id') return inventoryLocations();
+  const map = {
+    equipment_type_id: state.lookups.types,
+    brand_id: state.lookups.brands,
+    model_id: state.lookups.models
+  };
+  return map[select.name] || [];
+}
 
 document.querySelectorAll('nav a[data-view]').forEach((link) => {
   link.addEventListener('click', async (event) => {
