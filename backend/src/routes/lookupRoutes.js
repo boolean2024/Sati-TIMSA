@@ -276,6 +276,14 @@ router.put('/:kind/:id', authenticate, requireWriteAccess, async (req, res, next
   }
 });
 
+const catalogFkTables = {
+  equipment_types: { cols: ['equipment_type_id'] },
+  brands: { cols: ['brand_id'] },
+  equipment_models: { cols: ['model_id'] },
+  locations: { cols: ['location_id'] },
+  areas: { cols: ['area_id'] }
+};
+
 router.delete('/:kind/:id', authenticate, requireWriteAccess, async (req, res, next) => {
   const catalog = getCatalog(req.params.kind);
   if (!catalog) {
@@ -285,6 +293,17 @@ router.delete('/:kind/:id', authenticate, requireWriteAccess, async (req, res, n
   try {
     const id = z.coerce.number().int().positive().parse(req.params.id);
     const item = await db.withTransaction(async (client) => {
+      const fkInfo = catalogFkTables[catalog.table];
+      if (fkInfo) {
+        for (const table of ['equipment', 'stock_items']) {
+          for (const column of fkInfo.cols) {
+            await client.query(
+              `UPDATE ${table} SET ${column} = NULL WHERE ${column} = $1`,
+              [id]
+            );
+          }
+        }
+      }
       const { rows } = await client.query(
         `DELETE FROM ${catalog.table}
          WHERE id = $1
